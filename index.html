@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-BR" style="scroll-behavior: smooth;">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cabeçalho Fixo com Scroll Suave</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+  
+  #canvasGraficoTemporal {
+    width: 100% !important;
+    max-width: 800px;
+    height: 400px !important;
+    display: block !important;
+  }
+
+  .tooltip {
+        position: fixed;
+        z-index: 9999;
+        text-align: left;
+        padding: 10px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        pointer-events: none;
+        font-size: 14px;
+        font-weight: bold;
+        box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+        opacity: 0;
+      }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+  <!-- CABEÇALHO FIXO -->
+  <header class="bg-white shadow-md p-4 flex items-center fixed top-0 w-full z-50">
+    <!-- Logo à esquerda -->
+    <div>
+      <img src="logo-renob-vet.png" alt="Logo" width="100" height="auto" />
+    </div>
+
+    <!-- Contêiner que expande e centraliza o menu -->
+    <div class="flex-1 flex justify-center">
+      <nav class="flex space-x-6">
+        <a href="#introducao" class="text-gray-700 hover:text-blue-600">Introdução</a>
+        
+        <div class="relative">
+          <button id="menuButton" class="text-gray-700 hover:text-blue-600 flex items-center">
+            Dados SISVAN ▾
+          </button>
+          <div
+            id="dropdownMenu"
+            class="absolute hidden bg-white shadow-md mt-2 w-64 rounded-md p-2"
+          >
+            <a href="#mapeamento" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+              Mapeamento do Estado Nutricional
+            </a>
+            <a href="#uf" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+              Unidade Federativa
+            </a>
+            <a href="#analises" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+              Análises Temporais
+            </a>
+          </div>
+        </div>
+
+        <a href="#membros" class="text-gray-700 hover:text-blue-600">Membros</a>
+        <a href="#contatos" class="text-gray-700 hover:text-blue-600">Contatos</a>
+        <a href="#materiais" class="text-gray-700 hover:text-blue-600">Materiais de Apoio</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ESPAÇO PARA O CABEÇALHO FIXO (opcional, mas geralmente necessário) -->
+  <!-- Ajuste o valor de "h-16" de acordo com a altura real do cabeçalho -->
+  <div class="h-16"></div>
+
+  <!-- SEÇÕES (conteúdos) -->
+  <section id="introducao" class="min-h-screen flex flex-col items-center justify-center">
+    <h1 class="text-2xl font-bold mb-4">Seção de Introdução</h1>
+    <p class="max-w-xl text-center text-gray-600">
+      Conteúdo de Introdução...
+    </p>
+  </section>
+  
+  <section 
+  id="mapeamento" 
+  class="min-h-screen bg-gray-200 flex flex-col items-center justify-center"
+>
+  <h1 class="text-2xl font-bold text-center mb-4">
+    Mapeamento do Estado Nutricional
+  </h1>
+
+  <!-- Container geral em duas colunas (Filtros à esquerda, Conteúdo à direita) -->
+  <div class="max-w-6xl w-full flex gap-4">
+    
+    <!-- COLUNA ESQUERDA: FILTROS -->
+    <div id="filtrosMapeamento" class="w-1/4 bg-white p-4 rounded-md shadow-md">
+      <h2 class="text-lg font-bold mb-2">Filtros</h2>
+
+      <label for="selectUF" class="block font-semibold mt-2">UF</label>
+      <select id="selectUF" class="border border-gray-300 rounded p-1 w-full"></select>
+
+      <label for="selectMunicipio" class="block font-semibold mt-2">Município</label>
+      <select id="selectMunicipio" class="border border-gray-300 rounded p-1 w-full"></select>
+
+      <label for="selectAno" class="block font-semibold mt-2">Ano</label>
+      <select id="selectAno" class="border border-gray-300 rounded p-1 w-full"></select>
+
+      <label for="selectFase" class="block font-semibold mt-2">Fase da Vida</label>
+      <select id="selectFase" class="border border-gray-300 rounded p-1 w-full">
+        <option value="adolescente">Adolescentes</option>
+        <option value="adulto">Adultos</option>
+      </select>
+
+    </div>
+
+    <!-- COLUNA DIREITA: GRÁFICO + QUADRO ENTREVISTADOS + MENU FLUTUANTE -->
+    <div class="flex-1 bg-white p-4 rounded-md shadow-md flex gap-4 relative">
+      <!-- GRÁFICO (ocupa todo o espaço restante) -->
+      <div id="graficoMapeamento" class="flex-1">
+        <!-- O script mapeamento.js desenha o gráfico dentro desta div -->
+      </div>
+          <!-- BOTÃO PARA ABRIR MENU FLUTUANTE (caso queira) -->
+          <button 
+          id="btnMenuAdultoToggle" 
+          class="absolute top-2 right-2 bg-blue-500 text-white px-2 py-1 rounded hidden"
+        >
+          | | |
+        </button>
+  
+        <!-- MENU FLUTUANTE PARA ADULTO (inicia oculto) -->
+        <div 
+          id="menuAdultoContainer" 
+          class="absolute top-12 right-2 bg-white p-2 shadow-md rounded-md hidden"
+        >
+          <h2 class="font-bold mb-2">Indicadores</h2>
+          
+          <!-- Checkboxes -->
+          <label class="block">
+            <input type="checkbox" name="adultoCols" value="baixo_peso" checked />
+            Baixo Peso
+          </label>
+          <label class="block">
+            <input type="checkbox" name="adultoCols" value="eutrofico" checked />
+            Eutrófico
+          </label>
+          <label class="block">
+            <input type="checkbox" name="adultoCols" value="sobrepeso" checked />
+            Sobrepeso
+          </label>
+          <label class="block">
+            <input type="checkbox" name="adultoCols" value="obesidade_G_1" checked />
+            Obesidade 1
+          </label>
+          <label class="block">
+            <input type="checkbox" name="adultoCols" value="obesidade_G_2" checked />
+            Obesidade 2
+          </label>
+          <label class="block">
+            <input type="checkbox" name="adultoCols" value="obesidade_G_3" checked />
+            Obesidade 3
+          </label>
+
+          <label class="block">
+            <input type="checkbox" name="adultoCols" value="excesso_peso" />
+            Excesso de Peso
+          </label>
+          
+          <!-- Obesidade (soma de obesidade_G_1 + obesidade_G_2 + obesidade_G_3) -->
+          <label class="block">
+            <input type="checkbox" name="adultoCols" value="obesidade_calc" />
+            Obesidade
+          </label>
+      </div>
+      </div>
+
+      <!-- QUADRO ENTREVISTADOS (largura fixa) -->
+      <div id="quadroEntrevistados" class="w-80 p-4 bg-white rounded-md shadow-md">
+        <h2 class="font-bold text-lg mb-2">Entrevistados</h2>
+        
+        <p id="pHomens">
+            <span style="color: #0074ff;">■</span> Homens: <span id="valorHomens">0</span>
+        </p>
+        <p id="pMulheres">
+            <span style="color: #ff8b00;">■</span> Mulheres: <span id="valorMulheres">0</span>
+        </p>
+
+        <p id="pTodos">
+            <span style="color: #3cb371;">■</span> Todos: <span id="valorTodos">0</span>
+        </p>
+      </div>
+
+  </div>
+</section>
+
+  <!-- Seção de Mapeamento Regional (integrada via regional.js) -->
+  <!-- Seção Regional -->
+  <section id="regional"
+  class="min-h-screen flex flex-col items-center justify-center mx-auto gap-4 bg-gray-100 p-5"
+  >
+    <h1 class="text-2xl text-center font-bold mb-4">Mapeamento Regional</h1>
+    <div class="max-w-screen flex gap-4 mx-auto">
+      <!-- Coluna Esquerda: Filtros -->
+      <div id="regionalFilters" class="flex-none w-1/4 bg-white p-4 rounded-md shadow-md">
+        <h2 class="text-lg font-bold mb-2">Filtros</h2>
+        <label for="filtro-ano" class="block font-semibold mt-2">Ano</label>
+        <select id="filtro-ano" class="border border-gray-300 rounded p-1 w-full"></select>
+        <label for="filtro-sexo" class="block font-semibold mt-2">Gênero</label>
+        <select id="filtro-sexo" class="border border-gray-300 rounded p-1 w-full">
+          <option value="Todos">Todos</option>
+          <option value="Fem">Feminino</option>
+          <option value="Masc">Masculino</option>
+        </select>
+        <label for="filtro-nutricional" class="block font-semibold mt-2">Estado Nutricional</label>
+        <select id="filtro-nutricional" class="border border-gray-300 rounded p-1 w-full">
+          <option value="Total">Total</option>
+          <option value="baixo_peso">Baixo peso</option>
+          <option value="eutrofico">Eutrófico</option>
+          <option value="sobrepeso">Sobrepeso</option>
+          <option value="obesidade_G_1">Obesidade grau 1</option>
+          <option value="obesidade_G_2">Obesidade grau 2</option>
+          <option value="obesidade_G_3">Obesidade grau 3</option>
+        </select>
+      </div>
+      <!-- Coluna Direita: Mapa e Legenda -->
+      <div id="regionalMapContainer" class="flex flex-row min-w-[800] bg-white p-4 rounded-md shadow-md items-center">
+        <!-- Aqui será renderizado o mapa (Brasil ou Estado) -->
+        <div id="mapaRegional" class="flex-1 mx-auto" ></div>
+        <div id="legendRegional" class="flex-1 mx-auto"></div>
+      </div>
+    </div>
+  </section>
+  
+    <!-- Tooltip -->
+    <div class="tooltip"></div>
+
+
+  <!-- SEÇÃO DE ANÁLISES TEMPORAIS -->
+  <section id="analises" class="min-h-screen bg-gray-200 flex flex-col items-center justify-center">
+    <h1 class="text-2xl font-bold text-center mb-4">Análises Temporais</h1>
+    <div class="max-w-6xl w-full flex gap-4">
+      
+      <!-- COLUNA ESQUERDA: FILTROS -->
+      <div id="filtrosAnalise" class="min-w-60 w-1/3 bg-white p-5 rounded-md shadow-md">
+        <h2 class="text-lg font-bold mb-2">Filtros</h2>
+        <label for="selectUFTemporal" class="block font-semibold mt-2">UF</label>
+        <select id="selectUFTemporal" class="border border-gray-300 rounded p-1 w-full"></select>
+
+        <label for="selectMunicipioTemporal" class="block font-semibold mt-2">Município</label>
+        <select id="selectMunicipioTemporal" class="border border-gray-300 rounded p-1 w-full"></select>
+
+        <label for="selectFaseTemporal" class="block font-semibold mt-2">Fase da Vida</label>
+        <select id="selectFaseTemporal" class="border border-gray-300 rounded p-1 w-full">
+          <option value="adolescente">Adolescentes</option>
+          <option value="adulto">Adultos</option>
+        </select>
+
+        <label for="selectIndicador" class="block font-semibold mt-2">Indicador</label>
+        <select id="selectIndicador" class="border border-gray-300 rounded p-1 w-full"></select>
+      </div>
+      
+      <!-- COLUNA DIREITA: GRÁFICO + QUADRO ENTREVISTADOS -->
+      <div class="flex-1 bg-white p-4 rounded-md shadow-md flex gap-4 relative">
+        <!-- GRÁFICO -->
+        <div id="graficoAnaliseTemporal" class="flex-1"></div>
+            <canvas id="canvasGraficoTemporal"></canvas>
+      </div>
+      
+      <!-- QUADRO ENTREVISTADOS -->
+      <div id="quadroEntrevistadosTemporal" class="w-55 p-4 bg-white rounded-md shadow-md flex-shrink-0">
+        <h2 class="font-bold text-lg mb-2">Entrevistados</h2>
+        <p id="pHomensTemporal">
+            <span style="color: #0074ff;">■</span> Homens: <span id="valorHomensTemporal">0</span>
+        </p>
+        <p id="pMulheresTemporal">
+            <span style="color: #ff8b00;">■</span> Mulheres: <span id="valorMulheresTemporal">0</span>
+        </p>
+        <p id="pTodosTemporal">
+            <span style="color: #3cb371;">■</span> Todos: <span id="valorTodosTemporal">0</span>
+        </p>
+      </div>
+    </div>
+  </section>
+  
+  <section id="membros" class="min-h-screen flex flex-col items-center justify-center bg-gray-200">
+    <h1 class="text-2xl font-bold mb-4">Membros</h1>
+    <p class="max-w-xl text-center text-gray-600">
+      Conteúdo de Membros...
+    </p>
+  </section>
+
+  <section id="contatos" class="min-h-screen flex flex-col items-center justify-center">
+    <h1 class="text-2xl font-bold mb-4">Contatos</h1>
+    <p class="max-w-xl text-center text-gray-600">
+      Conteúdo de Contatos...
+    </p>
+  </section>
+
+  <section id="materiais" class="min-h-screen flex flex-col items-center justify-center bg-gray-200">
+    <h1 class="text-2xl font-bold mb-4">Materiais de Apoio</h1>
+    <p class="max-w-xl text-center text-gray-600">
+      Conteúdo de Materiais...
+    </p>
+  </section>
+
+  <!-- SCRIPT DROPDOWN -->
+
+<!-- Scripts -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="mapeamento.js"></script>
+<script src="analise_temporal.js"></script>
+<script src="regional.js"></script>
+
+
+  <script>
+    document.getElementById("menuButton").addEventListener("click", function () {
+      document.getElementById("dropdownMenu").classList.toggle("hidden");
+    });
+    
+    document.addEventListener("click", function (event) {
+      const dropdown = document.getElementById("dropdownMenu");
+      const button = document.getElementById("menuButton");
+      if (!button.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.classList.add("hidden");
+      }
+    });
+  </script>
+</body>
+</html>
