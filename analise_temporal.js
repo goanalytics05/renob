@@ -11,6 +11,24 @@ const selectMunicipioTemporal = document.getElementById("selectMunicipioTemporal
 const selectFaseTemporal = document.getElementById("selectFaseTemporal");
 const selectIndicadorTemporal = document.getElementById("selectIndicador");
 
+// Transcrição para os filtros
+const nomesIndicadoresAdulto = {
+    baixo_peso: "Baixo Peso",
+    eutrofico: "Eutrófico",
+    sobrepeso: "Sobrepeso",
+    obesidade_G_1: "Obesidade Grau I",
+    obesidade_G_2: "Obesidade Grau II",
+    obesidade_G_3: "Obesidade Grau III"
+};
+
+const nomesIndicadoresAdolescente = {
+    magreza_acentuada: "Magreza Acentuada",
+    magreza: "Magreza",
+    obesidade: "Obesidade",
+    obesidade_grave: "Obesidade Grave"
+};
+
+
 // Carregar os dados e inicializar o gráfico
 d3.csv(csvUrlTemporal).then(data => {
     allDataTemporal = data;
@@ -98,15 +116,15 @@ selectIndicadorTemporal.addEventListener("change", () => {
 // 🔹 Função para atualizar Indicadores
 function atualizarIndicadoresTemporais() {
     const faseVidaSelecionada = selectFaseTemporal.value;
-
     if (!faseVidaSelecionada) return;
 
-    const indicadores = faseVidaSelecionada === "adulto"
-        ? ["baixo_peso", "eutrofico", "sobrepeso", "obesidade_G_1", "obesidade_G_2", "obesidade_G_3"]
-        : ["magreza_acentuada", "magreza", "obesidade", "obesidade_grave"];
+    const indicadores = faseVidaSelecionada === "adulto" 
+        ? nomesIndicadoresAdulto 
+        : nomesIndicadoresAdolescente;
 
-    selectIndicadorTemporal.innerHTML = indicadores.map(indicador => 
-        `<option value="${indicador}">${indicador.replace("_", " ")}</option>`).join("");
+    selectIndicadorTemporal.innerHTML = Object.entries(indicadores)
+        .map(([valor, nomeExibicao]) => `<option value="${valor}">${nomeExibicao}</option>`)
+        .join("");
 }
 
 // 🔹 Atualizar gráfico quando a fase de vida for alterada
@@ -239,7 +257,7 @@ function desenharGraficoTemporal(dados, anos, maxY) {
       .x(d => x(d.ano))
       .y(d => y(d.valor));
 
-    const cores = { Masc: "#0074ff", Fem: "#ff8b00", Todos: "#3cb371" };
+    const cores = { Masc: "#597eec", Fem: "#f76482", Todos: "#d061a4" };
 
     ["Masc", "Fem", "Todos"].forEach(sexo => {
         svg.append("path")

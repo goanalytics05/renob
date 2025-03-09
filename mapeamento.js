@@ -179,10 +179,12 @@
   
       // Preencher Ano
       const anos = [...new Set(data.map(d => d.ANO))].sort();
+      const defaultAno = anos[anos.length - 1]
       anos.forEach(ano => {
           const option = document.createElement("option");
           option.value = ano;
           option.text = ano;
+          if (ano === defaultAno) {option.selected = true;}
           selectAno.appendChild(option);
       });
   
@@ -428,8 +430,8 @@ function desenharGrafico(dados) {
     d3.select("#graficoMapeamento").selectAll("*").remove();
   
     const margin = { top: 30, right: 30, bottom: 50, left: 60 },
-          width = 600,
-          height = 400;
+          width = 700,
+          height = 350;
   
     // Cria o SVG
     const svg = d3.select("#graficoMapeamento")
@@ -460,7 +462,7 @@ function desenharGrafico(dados) {
   
     const color = d3.scaleOrdinal()
       .domain(subgroups)
-      .range(["#3cb371", "#0074ff", "#ff8b00"]);
+      .range(["#d061a4", "#597eec", "#f76482"]);
   
   // ------------------------------------------------------------------
   // Eixo X - Use tickFormat para renomear
@@ -549,11 +551,7 @@ function desenharGrafico(dados) {
     .attr("x", width / 2)
     .attr("y", height + margin.bottom - 5)
     .style("font-size", "16px") // aumentar fonte do título do eixo
-    .text("Indicadores");
+    .text("Estado Nutricional");
   
-    svg.append("text")
-    .attr("text-anchor", "middle")
-    .attr("transform", `translate(${-margin.left + 20}, ${height / 2}) rotate(-90)`)
-    .style("font-size", "16px") // aumentar fonte do título do eixo
-    .text("Percentual em relação ao total filtrado");
+
   }

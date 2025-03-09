@@ -1,4 +1,4 @@
-const width = 600, height = 500;
+const width = 700, height = 500;
 
 // Variáveis globais para controlar o modo de visualização
 let currentMode = "brasil"; // "brasil" ou "estado"
