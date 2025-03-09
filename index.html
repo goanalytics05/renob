@@ -15,7 +15,7 @@
     display: block !important;
   }
 
-  .tooltip {
+  .tooltip, .tooltip2 {
         position: fixed;
         z-index: 9999;
         text-align: left;
@@ -240,9 +240,8 @@
       </div>
     </div>
   </section>
-  
-    <!-- Tooltip -->
-    <div class="tooltip"></div>
+  <div class="tooltip"></div>
+
 
 
   <!-- SEÇÃO DE ANÁLISES TEMPORAIS -->
@@ -288,8 +287,7 @@
       
       <!-- COLUNA DIREITA: GRÁFICO -->
       <div class="w-3/4 bg-white p-4 rounded-md shadow-md">
-        <div id="graficoAnaliseTemporal" class="w-full h-12"></div>
-        <canvas id="canvasGraficoTemporal" class="hidden"></canvas>
+        <div id="graficoAnaliseTemporal" class="w-full"></div>
       </div>
       
     </div>
@@ -319,5 +317,7 @@
       }
     });
   </script>
+  <!-- Tooltip -->
+
 </body>
 </html>

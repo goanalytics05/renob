@@ -225,46 +225,152 @@ function atualizarQuadroEntrevistados(dadosFiltrados) {
 
 // 🔹 Função para desenhar o gráfico com eixo Y dinâmico
 function desenharGraficoTemporal(dados, anos, maxY) {
+    // Limpa o contêiner
     d3.select("#graficoAnaliseTemporal").selectAll("*").remove();
-
+  
     const margin = { top: 30, right: 30, bottom: 50, left: 60 },
-          width = 700,
-          height = 400;
-
+          internalWidth  = 700,
+          internalHeight = 355;
+  
+    // Cria o SVG responsivo via viewBox
     const svg = d3.select("#graficoAnaliseTemporal")
       .append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .append("g")
+      .attr("viewBox", `0 0 ${internalWidth + margin.left + margin.right} ${internalHeight + margin.top + margin.bottom}`)
+      .attr("preserveAspectRatio", "xMidYMid meet")
+      .classed("w-full", true)
+      .classed("h-auto", true);
+  
+    // Grupo principal para aplicar as margens
+    const chartArea = svg.append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
-
+  
+    // Escalas
     const x = d3.scalePoint()
       .domain(anos)
-      .range([0, width]);
-
+      .range([0, internalWidth])
+      .padding(0.2); // afasta os pontos das bordas
+  
     const y = d3.scaleLinear()
-      .domain([0, maxY]) // 🔹 Agora o eixo Y se adapta ao maior valor encontrado
-      .range([height, 0]);
-
-    svg.append("g")
-      .attr("transform", `translate(0, ${height})`)
-      .call(d3.axisBottom(x).tickFormat(d => d));
-
-    svg.append("g")
-      .call(d3.axisLeft(y).tickFormat(d => `${d}%`)); // 🔹 Exibir valores como porcentagem
-
+      .domain([0, maxY])
+      .range([internalHeight, 0]);
+  
+    // Cria três grupos na ordem desejada (primeiro ficam por trás)
+    const linesGroup   = chartArea.append("g").attr("class", "lines-group");
+    const circlesGroup = chartArea.append("g").attr("class", "circles-group");
+    const labelsGroup  = chartArea.append("g").attr("class", "labels-group");
+  
+    // Eixos (os adicionamos diretamente no chartArea)
+    chartArea.append("g")
+      .attr("transform", `translate(0, ${internalHeight})`)
+      .call(d3.axisBottom(x));
+    chartArea.append("g")
+      .call(d3.axisLeft(y).ticks(6).tickFormat(d => `${d}%`));
+  
+    // Linhas de referência para cada tick, exceto o último, no linesGroup
+    const ticks = y.ticks(6);
+    ticks.slice(0, ticks.length - 1).forEach(tickValue => {
+      linesGroup.append("line")
+        .attr("x1", 0)
+        .attr("y1", y(tickValue))
+        .attr("x2", internalWidth)
+        .attr("y2", y(tickValue))
+        .attr("stroke", "lightgray")
+        .attr("stroke-width", 1);
+    });
+  
+    // Gerador de linha para as séries
     const line = d3.line()
       .x(d => x(d.ano))
       .y(d => y(d.valor));
-
+  
+    // Cores para cada série
     const cores = { Masc: "#597eec", Fem: "#f76482", Todos: "#d061a4" };
-
+  
+    // Para cada série, desenha linha, círculos e labels
     ["Masc", "Fem", "Todos"].forEach(sexo => {
-        svg.append("path")
-          .datum(dados[sexo])
-          .attr("fill", "none")
-          .attr("stroke", cores[sexo])
-          .attr("stroke-width", 2)
-          .attr("d", line);
+      // Linha do gráfico (no linesGroup)
+      linesGroup.append("path")
+        .datum(dados[sexo])
+        .attr("fill", "none")
+        .attr("stroke", cores[sexo])
+        .attr("stroke-width", 2)
+        .attr("d", line);
+  
+      // Círculos (no circlesGroup, sempre visíveis)
+      circlesGroup.selectAll(`circle.${sexo}`)
+        .data(dados[sexo])
+        .enter()
+        .append("circle")
+        .attr("class", sexo)
+        .attr("cx", d => x(d.ano))
+        .attr("cy", d => y(d.valor))
+        .attr("r", 4)
+        .attr("fill", cores[sexo])
+        .on("mouseover", function(event, d) {
+          // Aumenta o círculo
+          d3.select(this)
+            .transition()
+            .duration(100)
+            .attr("r", 6);
+          // Mostra o label correspondente
+          labelsGroup.selectAll(`g.label-group-${sexo}`)
+            .filter(td => td.ano === d.ano)
+            .style("visibility", "visible");
+        })
+        .on("mouseout", function(event, d) {
+          // Restaura o tamanho do círculo
+          d3.select(this)
+            .transition()
+            .duration(100)
+            .attr("r", 4);
+          // Oculta o label correspondente
+          labelsGroup.selectAll(`g.label-group-${sexo}`)
+            .filter(td => td.ano === d.ano)
+            .style("visibility", "hidden");
+        });
+  
+      // Rótulos (grupo com retângulo + texto) no labelsGroup, inicialmente ocultos
+      const labelGroups = labelsGroup.selectAll(`g.label-group-${sexo}`)
+        .data(dados[sexo])
+        .enter()
+        .append("g")
+        .attr("class", `label-group-${sexo}`)
+        .style("visibility", "hidden");
+  
+      // Retângulo de fundo
+      labelGroups.append("rect")
+        .attr("fill", "white")
+        .attr("rx", 3)
+        .attr("ry", 3);
+  
+      // Texto do valor
+      labelGroups.append("text")
+        .attr("x", d => x(d.ano))
+        .attr("y", d => y(d.valor) - 8)
+        .attr("text-anchor", "middle")
+        .attr("font-weight", "bold")
+        .attr("fill", cores[sexo])
+        .text(d => `${d.valor.toFixed(2)}%`);
+  
+      // Ajusta o retângulo para envolver o texto com um padding maior
+      const padding = 12; // aumenta o retângulo
+      labelGroups.each(function(d) {
+        const g = d3.select(this);
+        const textElem = g.select("text").node();
+        const bbox = textElem.getBBox();
+        g.select("rect")
+          .attr("x", bbox.x - padding / 2)
+          .attr("y", bbox.y - padding / 2)
+          .attr("width", bbox.width + padding)
+          .attr("height", bbox.height + padding);
+      });
     });
-}
+  }
+  
+  
+  
+  
+  
+  
+  
+  
