@@ -53,6 +53,7 @@
     <div class="flex-1 flex justify-center">
       <nav class="flex space-x-6">
         <a href="#introducao" class="text-gray-700 hover:text-blue-600">Introdução</a>
+        <a href="#missao" class="text-gray-700 hover:text-blue-600">Nossa Missão</a>
         
         <div class="relative">
           <button id="menuButton" class="text-gray-700 hover:text-blue-600 flex items-center">
@@ -75,27 +76,233 @@
         </div>
 
         <a href="#membros" class="text-gray-700 hover:text-blue-600">Membros</a>
-        <a href="#contatos" class="text-gray-700 hover:text-blue-600">Contatos</a>
         <a href="#materiais" class="text-gray-700 hover:text-blue-600">Materiais de Apoio</a>
+        <a href="#contatos" class="text-gray-700 hover:text-blue-600">Contatos</a>
       </nav>
     </div>
   </header>
 
   <!-- ESPAÇO PARA O CABEÇALHO FIXO (opcional, mas geralmente necessário) -->
   <!-- Ajuste o valor de "h-16" de acordo com a altura real do cabeçalho -->
-  <div class="h-16"></div>
+  <div class="h-48"></div>
 
   <!-- SEÇÕES (conteúdos) -->
-  <section id="introducao" class="min-h-screen flex flex-col items-center justify-center">
-    <h1 class="text-2xl font-bold mb-4">Seção de Introdução</h1>
-    <p class="max-w-xl text-center text-gray-600">
-      Conteúdo de Introdução...
-    </p>
+  <section id="introducao" class="min-h-screen flex flex-col items-center justify-center pb-32">
+    <div class="max-w-6xl w-full px-4 mx-auto">
+      <h1 class="text-2xl font-bold mb-4 place-self-center">Seção de Introdução</h1>
+      <p class="indent-8 text-justify text-black-600">
+        Bem-vindo ao nosso site dedicado ao mapeamento do estado nutricional no Brasil. Utilizando dados do Sistema de Vigilância Alimentar e Nutricional (SISVAN) desde 2008 até 2023, oferecemos uma visão abrangente sobre a saúde nutricional da população brasileira. Nosso objetivo é fornecer informações detalhadas sobre as diferentes categorias de estado nutricional.
+      </p>
+      <br>
+      <h2 class="text-xl font-bold mb-4 self-start">Cobertura</h2>
+      <p class="indent-8 text-justify text-black-600">
+        Nosso mapeamento abrange todos os municípios, estados e regiões de saúde do Brasil, permitindo uma análise detalhada e regionalizada. Além disso, os dados são segmentados por gênero (feminino, masculino), por fases da vida (incluindo crianças, adolescentes, adultos e idosos) e pelo período de 2008 a 2023. Essa segmentação nos permite entender melhor as especificidades e necessidades nutricionais de cada grupo populacional, além de permitir comparações entre diferentes regiões e períodos.
+      </p>
+      <p class="indent-8 text-justify text-black-600">
+      Por exemplo, é possível comparar a prevalência de obesidade entre adultos do sexo feminino em Minas Gerais e em São Paulo; ou analisar a evolução do estado nutricional de crianças em Minas Gerais ao longo dos anos. Essas comparações ajudam a identificar tendências e áreas que necessitam de maior atenção e intervenção.
+      </p>
+      <br>
+      <h2 class="text-xl font-bold mb-4 self-start">Classificação do Estado Nutricional</h2>
+      <p class="indent-8 text-justify text-black-600">
+        Os pontos de corte do Índice de Massa Corporal (IMC) utilizados para a classificação do estado nutricional variam de acordo com as fases da vida.
+      </p>
+      <br>
+      <p class="indent-16 text-justify text-black-600">
+        Para o cálculo do IMC, adota-se a seguinte fórmula:
+      </p>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="col-span-2 text-center font-bold">
+          <math display="block">
+            <mrow>
+            <mi>Índice de Massa Corporal (IMC)</mi>
+            <mo>=</mo>
+            <mfrac>
+              <mrow>
+                <mi>Peso(kg)</mi>
+              </mrow>
+              <mrow>
+                <mi>Altura(m)</mi>
+                <mo>x</mo>
+                <mn>Altura(m)</mn>
+              </mrow>
+            </mfrac>
+            </mrow>
+          </math>
+          <br>
+        </div>
+        
+        <div>
+        <table class="place-self-center text-center border border-gray-600">
+          <caption class="font-bold">Crianças (0-5 anos)</caption>
+          <tr>
+            <th class="bg-gray-300 pl-4 pr-4 border-r border-b border-l border-gray-600">Percentil</th>
+            <th class="bg-gray-300 pl-4 pr-4 border-r border-b border-l border-gray-600">Escore-z</th>
+            <th class="bg-gray-300 pl-4 pr-4 border-r border-b border-l border-gray-600">Estado Nutricional</th>
+          </tr>
+          <tr>
+            <td class="border-r border-l border-gray-600">&lt; 0,1</td>
+            <td class="border-r border-l border-gray-600">&lt; -3</td>
+            <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Magreza acentuada</td>
+          </tr>
+          <tr>
+            <td class="border-r border-l border-gray-600"> 0,1 &le; 3</td>
+            <td class="border-r border-l border-gray-600">-3 &le; -2</td>
+            <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Magreza</td>
+          </tr>
+          <tr>
+            <td class="border-r border-l border-gray-600"> 3 &le; 85</td>
+            <td class="border-r border-l border-gray-600">-2 &le; 1</td>
+            <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Eutrofia</td>
+          </tr>
+          <tr>
+            <td class="border-r border-l border-gray-600"> 85 &le; 97</td>
+            <td class="border-r border-l border-gray-600">1 &le; 2</td>
+            <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Risco de sobrepeso</td>
+          </tr>
+          <tr>
+            <td class="border-r border-l border-gray-600"> 97 &le; 99,9</td>
+            <td class="border-r border-l border-gray-600">2 &le; 3</td>
+            <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Sobrepeso</td>
+          </tr>
+          <tr>
+            <td class="border-r border-l border-gray-600"> 99,9 &gt;</td>
+            <td class="border-r border-l border-gray-600">3 &gt;</td>
+            <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Obesidade</td>
+          </tr>
+        </table>
+        </div>
+        <div>
+          <table class="place-self-center text-center border border-gray-600">
+            <caption class="font-bold">Crianças e Adolescente (5-19 anos)</caption>
+            <tr>
+              <th class="bg-gray-300 pl-4 pr-4 border-r border-b border-l border-gray-600">Percentil</th>
+              <th class="bg-gray-300 pl-4 pr-4 border-r border-b border-l border-gray-600">Escore-z</th>
+              <th class="bg-gray-300 pl-4 pr-4 border-r border-b border-l border-gray-600">Estado Nutricional</th>
+            </tr>
+            <tr>
+              <td class="border-r border-l border-gray-600">&lt; 0,1</td>
+              <td class="border-r border-l border-gray-600">&lt; -3</td>
+              <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Magreza acentuada</td>
+            </tr>
+            <tr>
+              <td class="border-r border-l border-gray-600"> 0,1 &le; 3</td>
+              <td class="border-r border-l border-gray-600">-3 &le; -2</td>
+              <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Magreza</td>
+            </tr>
+            <tr>
+              <td class="border-r border-l border-gray-600"> 3 &le; 85</td>
+              <td class="border-r border-l border-gray-600">-2 &le; 1</td>
+              <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Eutrofia</td>
+            </tr>
+            <tr>
+              <td class="border-r border-l border-gray-600"> 85 &le; 97</td>
+              <td class="border-r border-l border-gray-600">1 &le; 2</td>
+              <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Sobrepeso</td>
+            </tr>
+            <tr>
+              <td class="border-r border-l border-gray-600"> 97 &le; 99,9</td>
+              <td class="border-r border-l border-gray-600">2 &le; 3</td>
+              <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Obesidade</td>
+            </tr>
+            <tr>
+              <td class="border-r border-l border-gray-600"> 99,9 &gt;</td>
+              <td class="border-r border-l border-gray-600">3 &gt;</td>
+              <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Obesidade grave</td>
+            </tr>
+          </table>
+          </div>
+          <div class="italic font-semibold col-span-2 place-self-center">*Pontos de corte de IMC-para-idade dos valores críticos de percentil e escore-z.</div>
+          <div class="col-span-2"></div>
+          <div>
+            <table class="place-self-center text-center">
+              <caption class="font-bold">Adultos (20-59 anos)</caption>
+              <tr>
+                <th class="bg-gray-300 pl-4 pr-4 border border-gray-600">IMC (kg/m²)</th>
+                <th class="bg-gray-300 pl-4 pr-4 border border-gray-600">Estado Nutricional</th>
+              </tr>
+              <tr>
+                <td class="border-r border-l border-gray-600">&lt; 18,5</td>
+                <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Baixo peso</td>
+              </tr>
+              <tr>
+                <td class="border-r border-l border-gray-600"> 18,5 &le; 24,9</td>
+                <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Eutrofia</td>
+                <td class="pl-4 pr-4 text-left border-r border-l border-t  border-gray-600">Excesso de Peso</td>
+              </tr>
+              <tr>
+                <td class="border-r border-l border-gray-600"> 25,0 &le; 29,9</td>
+                <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Sobrepeso</td>
+                <td class="pl-4 pr-4 text-left border-r border-l border-b  border-gray-600"></td>
+              </tr>
+              <tr>
+                <td class="border-r border-l border-gray-600"> 30,0 &le; 34,9</td>
+                <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Obesidade grau I</td>
+                <td class="pl-4 pr-4 text-left border-r border-l border-t  border-gray-600"></td>
+                
+              </tr>
+              <tr>
+                <td class="border-r border-l border-gray-600"> 35,0 &le; 39,9</td>
+                <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Obesidade grau II</td>
+                <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Obesidade</td>
+              </tr>
+              <tr>
+                <td class="border-r border-l border-b border-gray-600"> 40,0 &gt;</td>
+                <td class="pl-4 pr-4 text-left border-r border-l border-b  border-gray-600">Obesidade grau III</td>
+                <td class="pl-4 pr-4 text-left border-r border-l border-b  border-gray-600"></td>
+              </tr>
+            </table>
+          </div>
+          <div>
+            <table class="place-self-center text-center border border-gray-600">
+              <caption class="font-bold">Idosos (60 anos ou mais)</caption>
+              <tr>
+                <th class="bg-gray-300 pl-4 pr-4 border-r border-b border-l border-gray-600">IMC (kg/m²)</th>
+                <th class="bg-gray-300 pl-4 pr-4 border-r border-b border-l border-gray-600">Diagnóstico Nutricional</th>
+              </tr>
+              <tr>
+                <td class="border-r border-l border-gray-600">&lt; 2</td>
+                <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Baixo peso</td>
+              </tr>
+              <tr>
+                <td class="border-r border-l border-gray-600"> 22 &le; 27</td>
+                <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Adequado ou Eutrofia</td>
+              </tr>
+              <tr>
+                <td class="border-r border-l border-gray-600"> 27 &gt;</td>
+                <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Sobrepeso</td>
+              </tr>
+            </table>
+        <p class="indent-16 text-justify text-black-600">
+          
+        </p>
+          </div>
+      </div>
+    </div>
   </section>
-  
+  <section id="missao" 
+  class="min-h-screen bg-gray-200 flex flex-col items-center justify-center">
+  <div class="max-w-6xl w-full px-4 mx-auto">
+  <h1 class="text-2xl font-bold text-center mb-4">
+    Nossa Missão
+  </h1>
+  <p class="indent-8 text-justify text-black-600">
+    Nosso compromisso é com a promoção da saúde e bem-estar da população brasileira. Trabalhamos com ciência baseada em evidências para fornecer informações confiáveis que auxiliem profissionais e gestores de saúde a fomentar políticas públicas mais robustas, especialmente no que tange à prevenção da obesidade por meio de um monitoramento e avaliação mais eficiente. Através deste site, esperamos fornecer subsídios para a formulação de políticas públicas de alimentação e nutrição mais eficazes.
+  </p>
+  <br>
+  <div class="grid grid-cols-3">
+    <div></div>
+    <div class="col-span-2">
+    <p class="w-4/5 font-text-justify text-black-60 italic">
+    Explore nossos mapas e gráficos para obter uma compreensão aprofundada do estado nutricional no Brasil e ajude-nos a construir um futuro mais saudável para todos.
+    </p>
+    </div>
+  </div>
+  </div>
+  </section>
+
  <!-- Container geral em duas colunas (Filtros à esquerda, Conteúdo à direita) -->
   <section id="mapeamento" 
-  class="min-h-screen bg-gray-200 flex flex-col items-center justify-center">
+  class="min-h-screen flex flex-col items-center justify-center">
   <h1 class="text-2xl font-bold text-center mb-4">
     Mapeamento do Estado Nutricional
   </h1>
@@ -206,7 +413,7 @@
   <!-- Seção de Mapeamento Regional (integrada via regional.js) -->
   <!-- Seção Regional -->
   <section id="regional"
-  class="min-h-screen flex flex-col items-center justify-center mx-auto gap-4 bg-gray-100 p-5"
+  class="min-h-screen  bg-gray-200 flex flex-col items-center justify-center mx-auto gap-4 bg-gray-100 p-5"
   >
     <h1 class="text-2xl text-center font-bold mb-4">Mapeamento Regional</h1>
     <div class="w-full flex gap-4 max-w-6xl">
@@ -245,7 +452,7 @@
 
 
   <!-- SEÇÃO DE ANÁLISES TEMPORAIS -->
-  <section id="analises" class="min-h-screen bg-gray-200 flex flex-col items-center justify-center">
+  <section id="analises" class="min-h-screen flex flex-col items-center justify-center">
     <h1 class="text-2xl font-bold text-center mb-4">Análises Temporais</h1>
     <div class="max-w-6xl w-full flex gap-4">
       
@@ -293,7 +500,57 @@
     </div>
   </section>
   
+  <!-- SEÇÃO DE MEMBROS-->
+  <section id="membros"
+  class="min-h-screen  bg-gray-200 flex flex-col items-center justify-center mx-auto gap-4 bg-gray-100 p-5"
+  >
+  <div class="max-w-6xl w-full px-4 mx-auto">
+    <h1 class="text-2xl text-center font-bold mb-4">Membros</h1>
+    <br>
+    <p class="text-xl text-justify text-black-600 font-semibold">&#11045 Daniela Mayumi Usuda Prado Rocha</p>
+    <p class="text-justify text-black-600">Pós-doutoranda do Departamento de Nutrição e Saúde. Universidade Federal de Viçosa.</p>
+    <p class="text-justify text-black-600 font-semibold">Currículo Lattes: <a class="font-normal text-blue-700 underline" href="http://lattes.cnpq.br/1255736788675899">http://lattes.cnpq.br/1255736788675899</a></p>
+    <br>
+    <p class="text-xl text-justify text-black-600 font-semibold">&#11045 Gustavo de Oliveira Almeida</p>
+    <p class="text-justify text-black-600">Desenvolvedor | Mestrando do Departamento de Ciência da Computação. Universidade Federal de Viçosa.</p>
+    <p class="text-justify text-black-600 font-semibold">Currículo Lattes: <a class="font-normal text-blue-700 underline" href="http://lattes.cnpq.br/7406360365770055">http://lattes.cnpq.br/7406360365770055</a></p>
+    <br>
+    <p class="text-xl text-justify text-black-600 font-semibold">&#11045 Matheus Cavalcanti de Albuquerque</p>
+    <p class="text-justify text-black-600">Desenvolvedor e Analista de dados.</p>
+    <p class="text-justify text-black-600 font-semibold">Currículo Lattes: <a class="font-normal text-blue-700 underline" href="http://lattes.cnpq.br/9242679981831049">http://lattes.cnpq.br/9242679981831049</a></p>
+    <br>
+    <p class="text-xl text-justify text-black-600 font-semibold">&#11045 Helen Hermana Miranda Hermsdorff</p>
+    <p class="text-justify text-black-600">Professora do Departamento de Nutrição e Saúde. Universidade Federal de Viçosa.</p>
+    <p class="text-justify text-black-600 font-semibold">Currículo Lattes: <a class="font-normal text-blue-700 underline" href="http://lattes.cnpq.br/8193454290644430">http://lattes.cnpq.br/8193454290644430</a></p>
+    <br>
+    <p class="text-xl text-justify text-black-600 font-semibold">&#11045 Sabrina de Azevedo Silveira</p>
+    <p class="text-justify text-black-600">Professora do Departamento de Ciência da Computação. Universidade Federal de Viçosa.</p>
+    <p class="text-justify text-black-600 font-semibold">Currículo Lattes: <a class="font-normal text-blue-700 underline" href="http://lattes.cnpq.br/0899817111748167">http://lattes.cnpq.br/0899817111748167</a></p>
+    
+  </div>
+  </section>
 
+  <!-- SEÇÃO DE MATERIAIS DE APOIO-->
+  <section id="materiais"
+  class="min-h-screen flex flex-col items-center justify-center mx-auto gap-4 bg-gray-100 p-5"
+  >
+    <div class="max-w-6xl w-full px-4 mx-auto">
+    <h1 class="text-2xl text-center font-bold mb-4">Materiais de Apoio</h1>
+    <br>
+       
+    <h2 class="text-xl font-bold mb-4 self-start">Fontes de Dados</h2>
+    <p class="indent-8 text-justify text-black-600">
+      Os dados apresentados são provenientes do SISVAN, um sistema gerido pelo Ministério da Saúde que consolida informações sobre antropometria e marcadores de consumo alimentar. Desde 2008, o SISVAN tem sido uma ferramenta essencial para o registro de dados antropométricos e de marcadores de consumo alimentar até a geração de relatórios, os quais podem ser utilizados para monitorar e avaliar a situação nutricional da população atendida na Atenção Primária à Saúde (APS) em todo o país.    
+    </p>
+    <p class="indent-8 text-justify text-black-600">
+      Ministério da Saúde. Sistema de Vigilância Alimentar e Nutricional - SISVAN. Disponível em: <a class="text-blue-700 underline" href="https://sisaps.saude.gov.br/sisvan/index">https://sisaps.saude.gov.br/sisvan/index</a>.
+    </p>
+    <br>
+    
+    <h2 class="text-xl font-bold mb-4 self-start">Regiões de Saúde</h2>
+    <p class="indent-8 text-justify text-black-600">INFO - a acrescentar.</p>
+    </div>
+  </section>
   <!-- SCRIPT DROPDOWN -->
 
 <!-- Scripts -->
