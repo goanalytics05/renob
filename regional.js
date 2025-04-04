@@ -109,7 +109,7 @@ function getColorScale(sexo, minVal, maxVal) {
   const gradientes = {
     "Fem": ["#FFF0F5", "#DC143C"],
     "Masc": ["#E0FFFF", "#4169E1"],
-    "Todos": ["#E6E6FA", "#a43377"]
+    "Todos": ["#e6fae6", "#33a460"]
   };
   const [startColor, endColor] = gradientes[sexo] || gradientes["Todos"];
   return d3.scaleLinear().domain([minVal, maxVal]).range([startColor, endColor]);
@@ -238,7 +238,7 @@ function updateBrasilMap(geoData) {
         const val = valoresMapa.get(d.id);
         return val !== undefined ? colorScale(val) : "#ccc";
      })
-     .attr("stroke", { "Todos": "#2E8B57", "Fem": "#4682B4", "Masc": "#DB7093" }[filtroSexo] || "#ccc")
+     .attr("stroke", { "Todos": "#b982a1", "Fem": "#4682B4", "Masc": "#DB7093" }[filtroSexo] || "#ccc")
      .attr("stroke-width", 1)
      .on("mouseover", function(event, d) {
         const nomeEstado = estados[d.id] || d.id;

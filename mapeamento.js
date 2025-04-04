@@ -563,7 +563,7 @@ function desenharGrafico(dados) {
   // Escala de cores para os sexos
   const color = d3.scaleOrdinal()
     .domain(["Masc", "Fem", "Todos"])
-    .range(["#597eec", "#f76482", "#d061a4"]);
+    .range(["#597eec", "#f76482", "#57bb7f"]);
 
   // Eixo X
   const xAxis = svg.append("g")
@@ -620,7 +620,7 @@ function desenharGrafico(dados) {
       .attr("y", d => y(d.Todos))
       .attr("width", 0.7*x1.bandwidth())
       .attr("height", d => height - y(d.Todos))
-      .attr("fill", "#d061a4")
+      .attr("fill", "#57bb7f")
       .on("mouseover", function(event, d) {
         tooltip.transition().duration(200).style("opacity", 1);
         tooltip.html(`

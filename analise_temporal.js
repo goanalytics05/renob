@@ -284,7 +284,7 @@ function desenharGraficoTemporal(dados, anos, maxY) {
       .y(d => y(d.valor));
   
     // Cores para cada série
-    const cores = { Masc: "#597eec", Fem: "#f76482", Todos: "#d061a4" };
+    const cores = { Masc: "#597eec", Fem: "#f76482", Todos: "#57bb7f" };
   
     // Para cada série, desenha linha, círculos e labels
     ["Masc", "Fem", "Todos"].forEach(sexo => {
