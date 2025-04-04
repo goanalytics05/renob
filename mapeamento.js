@@ -140,7 +140,7 @@
       });
   
       // Preencher UF
-      selectUF.innerHTML = "<option value=''>Geral</option>";
+      selectUF.innerHTML = "<option value=''>Brasil</option>";
       ufs.forEach(uf => {
           const option = document.createElement("option");
           option.value = uf;
@@ -151,7 +151,7 @@
       // Preencher Município
       function atualizarMunicipios(ufSelecionada, manterSelecionado = false) {
           const municipioSelecionado = selectMunicipio.value;
-          selectMunicipio.innerHTML = "<option value=''>Geral</option>";
+          selectMunicipio.innerHTML = "<option value=''>Todos</option>";
           
           if (ufSelecionada && municipiosPorUF[ufSelecionada]) {
               [...municipiosPorUF[ufSelecionada]].sort().forEach(m => {
@@ -547,11 +547,11 @@ function desenharGrafico(dados) {
   
     // Labels dos eixos
     svg.append("text")
-    .attr("text-anchor", "middle")
-    .attr("x", width / 2)
-    .attr("y", height + margin.bottom - 5)
-    .style("font-size", "16px") // aumentar fonte do título do eixo
-    .text("Estado Nutricional");
+    .attr("transform", "rotate(-90)")
+    .attr("x", 0 - (height / 2) - margin.top)
+    .attr("y", -45)
+    .style("font-size", "18px") // aumentar fonte do título do eixo
+    .text("Prevalência");
   
 
   }
