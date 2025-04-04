@@ -303,7 +303,7 @@
  <!-- Container geral em duas colunas (Filtros à esquerda, Conteúdo à direita) -->
   <section id="mapeamento" 
   class="min-h-screen flex flex-col items-center justify-center">
-  <h1 class="text-2xl font-bold text-center mb-4">
+  <h1 id="tituloMapeamento" class="text-2xl font-bold text-center mb-4">
     Mapeamento do Estado Nutricional
   </h1>
 
@@ -325,6 +325,13 @@
         <label for="selectAno" class="block font-semibold mt-2">Ano</label>
         <select id="selectAno" class="border border-gray-300 rounded p-1 w-full"></select>
 
+        <label for="selectSexo" class="block font-semibold mt-2">Gênero</label>
+        <select id="selectSexo" class="border border-gray-300 rounded p-1 w-full">
+          <option value="Todos">Todos</option>
+          <option value="Fem">Feminino</option>
+          <option value="Masc">Masculino</option>
+        </select>
+
         <label for="selectFase" class="block font-semibold mt-2">Fase da Vida</label>
         <select id="selectFase" class="border border-gray-300 rounded p-1 w-full">
           <option value="adulto">Adultos</option>
@@ -335,7 +342,6 @@
       <!-- QUADRO DE ENTREVISTADOS -->
       <div id="quadroEntrevistados" class="bg-white p-4 rounded-md shadow-md">
         <!--<h2 class="font-bold text-lg mb-2">Entrevistados</h2>-->
-        <br>
         <p id="pHomens">
             <span class="lineMasc">■</span> Masculino: <span id="valorHomens">0</span>
         </p>
