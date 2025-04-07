@@ -3,11 +3,12 @@ const csvUrlTemporal = "db_final.csv";
 
 // Variáveis globais para armazenar os dados
 let allDataTemporal = [];
-let municipiosPorUF = {}; // 🔥 Agora `municipiosPorUF` é global
+let municipiosPorUF = {}; // Agora usaremos um Map para cada UF
 
 // Seletores HTML
 const selectUFTemporal = document.getElementById("selectUFTemporal");
 const selectMunicipioTemporal = document.getElementById("selectMunicipioTemporal");
+const selectSexoTemporal = document.getElementById("selectSexoTemporal");
 const selectFaseTemporal = document.getElementById("selectFaseTemporal");
 const selectIndicadorTemporal = document.getElementById("selectIndicador");
 
@@ -28,21 +29,35 @@ const nomesIndicadoresAdolescente = {
     obesidade_grave: "Obesidade Grave"
 };
 
+const estadoLabel ={
+  baixo_peso: "Baixo Peso",
+  eutrofico: "Eutrófico",
+  sobrepeso: "Sobrepeso",
+  obesidade_G_1: "Obesidade Grau I",
+  obesidade_G_2: "Obesidade Grau II",
+  obesidade_G_3: "Obesidade Grau III",
+  magreza_acentuada: "Magreza Acentuada",
+  magreza: "Magreza",
+  obesidade: "Obesidade",
+  obesidade_grave: "Obesidade Grave"
+}
 
 // Carregar os dados e inicializar o gráfico
 d3.csv(csvUrlTemporal).then(data => {
     allDataTemporal = data;
 
-    // Criar um objeto global para mapear UF -> Municípios
+    // Criar um objeto global para mapear UF -> Municípios usando Map
     data.forEach(d => {
         if (!municipiosPorUF[d.UF]) {
-            municipiosPorUF[d.UF] = new Set();
+            municipiosPorUF[d.UF] = new Map();
         }
-        municipiosPorUF[d.UF].add(d.municipio);
+        municipiosPorUF[d.UF].set(String(d.codigo_municipio), d.municipio);
     });
 
     // Preencher os selects
     popularSelectsTemporais(data);
+
+    atualizarTituloTemporal();
 
     // Gerar gráfico inicial com valores padrão
     atualizarGraficoTemporal();
@@ -54,11 +69,11 @@ function popularSelectsTemporais(data) {
     const ufs = [...new Set(data.map(d => d.UF))].sort();
 
     // Preencher UF
-    selectUFTemporal.innerHTML = "<option value=''>Geral</option>";
+    selectUFTemporal.innerHTML = "<option value=''>Brasil</option>";
     ufs.forEach(uf => {
         const option = document.createElement("option");
         option.value = uf;
-        option.text = uf;
+        option.text = ufLabel[uf] ? `${ufLabel[uf]} (${uf})` : uf;
         selectUFTemporal.appendChild(option);
     });
 
@@ -68,32 +83,86 @@ function popularSelectsTemporais(data) {
     atualizarIndicadoresTemporais();
 }
 
+// Função para recuperar o nome amigável do município selecionado no temporal
+function recuperarNomeMunicipioTemporal() {
+  const municipioSelected = selectMunicipioTemporal.value;
+  // Procura na base temporal a linha com o código do município
+  const registro = allDataTemporal.find(d => String(d.codigo_municipio) === municipioSelected);
+  if (!registro || !registro.codigo_municipio) {
+    return Promise.resolve(null);
+  }
+  const idMunicipio = String(registro.codigo_municipio);
+  const ufMunicipio = registro.UF;
+  const friendlyName = cidadesFriendly[ufMunicipio] ? cidadesFriendly[ufMunicipio][idMunicipio] : null;
+  return Promise.resolve(friendlyName ? `${friendlyName}-${ufMunicipio}` : null);
+}
+
+// Função para atualizar o título dinâmico do gráfico temporal
+function atualizarTituloTemporal() {
+  const fase = selectFaseTemporal.value;
+  const sexo = selectSexoTemporal.value;
+  const estado = selectIndicadorTemporal.value;
+  // Se nenhuma UF for selecionada, utiliza "Brasil"
+  const uf = selectUFTemporal.value || "Brasil";
+  // Se houver um select de ano, você pode adicioná-lo aqui; caso contrário, deixe em branco ou remova
+  const ano = ""; // Altere se houver um filtro de ano
+
+  recuperarNomeMunicipioTemporal().then(municipioAmigavel => {
+    const novoTitulo = !municipioAmigavel || municipioAmigavel === " "
+      ? `Análises Temporais de ${estadoLabel[estado]} em ${faseLabel[fase]} ${sexoLabel[sexo]} em ${ufLabel[uf]} ${ano}`.trim()
+      : `Análises Temporais de ${estadoLabel[estado]} em ${faseLabel[fase]} ${sexoLabel[sexo]} em ${municipioAmigavel} ${ano}`.trim();
+    document.getElementById("tituloTemporal").textContent = novoTitulo;
+  });
+}
+
+
 // 🔹 Função para atualizar municípios
-function atualizarMunicipiosTemporais(ufSelecionada) {
-    const municipioSelecionado = selectMunicipioTemporal.value;
-    selectMunicipioTemporal.innerHTML = "<option value=''>Geral</option>";
+function atualizarMunicipiosTemporais(ufSelecionada) {  
+  if (!ufSelecionada) {
+    selectMunicipioTemporal.innerHTML = "<option value=''>Todos</option>";
+    return;
+  }
 
-    // 🔥 Agora `municipiosPorUF` é global e está sempre disponível
-    if (ufSelecionada && municipiosPorUF[ufSelecionada]) {
-        [...municipiosPorUF[ufSelecionada]].sort().forEach(m => {
-            const option = document.createElement("option");
-            option.value = m;
-            option.text = m;
-            selectMunicipioTemporal.appendChild(option);
-        });
-    } else {
-        const municipios = [...new Set(allDataTemporal.map(d => d.municipio))].sort();
-        municipios.forEach(m => {
-            const option = document.createElement("option");
-            option.value = m;
-            option.text = m;
-            selectMunicipioTemporal.appendChild(option);
-        });
-    }
+  const municipioSelecionado = selectMunicipioTemporal.value;
+  selectMunicipioTemporal.innerHTML = "<option value=''>Todos</option>";
 
-    if ([...selectMunicipioTemporal.options].some(opt => opt.value === municipioSelecionado)) {
-        selectMunicipioTemporal.value = municipioSelecionado;
-    }
+  if (ufSelecionada && municipiosPorUF[ufSelecionada]) {
+      // Itera sobre o Map (chave = código, valor = nome original) e usa o nome amigável se disponível
+      Array.from(municipiosPorUF[ufSelecionada].entries())
+          .sort((a, b) => a[1].localeCompare(b[1]))
+          .forEach(([codigo, nomeOriginal]) => {
+              const option = document.createElement("option");
+              option.value = codigo;
+              option.text = (cidadesFriendly[ufSelecionada] && cidadesFriendly[ufSelecionada][codigo])
+                            ? cidadesFriendly[ufSelecionada][codigo]
+                            : nomeOriginal;
+              selectMunicipioTemporal.appendChild(option);
+          });
+  } else {
+      // Quando nenhuma UF é selecionada, agrupar todos os municípios (evitando duplicatas) com seus respectivos código e UF
+      const municipiosMap = new Map();
+      allDataTemporal.forEach(d => {
+          municipiosMap.set(String(d.codigo_municipio), { nome: d.municipio, uf: d.UF });
+      });
+      Array.from(municipiosMap.entries())
+          .sort((a, b) => {
+              const [codigoA, { nome: nomeA, uf: ufA }] = a;
+              const [codigoB, { nome: nomeB, uf: ufB }] = b;
+              const friendlyA = (cidadesFriendly[ufA] && cidadesFriendly[ufA][codigoA]) ? cidadesFriendly[ufA][codigoA] : nomeA;
+              const friendlyB = (cidadesFriendly[ufB] && cidadesFriendly[ufB][codigoB]) ? cidadesFriendly[ufB][codigoB] : nomeB;
+              return friendlyA.localeCompare(friendlyB);
+          })
+          .forEach(([codigo, { nome, uf }]) => {
+              const option = document.createElement("option");
+              option.value = codigo;
+              option.text = (cidadesFriendly[uf] && cidadesFriendly[uf][codigo]) ? cidadesFriendly[uf][codigo] : nome;
+              selectMunicipioTemporal.appendChild(option);
+          });
+  }
+
+  if ([...selectMunicipioTemporal.options].some(opt => opt.value === municipioSelecionado)) {
+      selectMunicipioTemporal.value = municipioSelecionado;
+  }
 }
 
 // 🔹 Atualizar municípios ao trocar UF
@@ -101,16 +170,19 @@ selectUFTemporal.addEventListener("change", () => {
     atualizarMunicipiosTemporais(selectUFTemporal.value);
     selectMunicipioTemporal.value = "";
     atualizarGraficoTemporal();
+    atualizarTituloTemporal();
 });
 
 // 🔹 Atualizar gráfico ao mudar o MUNICÍPIO
 selectMunicipioTemporal.addEventListener("change", () => {
     atualizarGraficoTemporal(); // 🔥 Agora o gráfico atualiza ao mudar município
+    atualizarTituloTemporal();
 });
 
 // 🔹 Atualizar gráfico ao mudar o INDICADOR
 selectIndicadorTemporal.addEventListener("change", () => {
     atualizarGraficoTemporal(); // 🔥 Agora o gráfico atualiza ao mudar indicador
+    atualizarTituloTemporal();
 });
 
 // 🔹 Função para atualizar Indicadores
@@ -131,20 +203,29 @@ function atualizarIndicadoresTemporais() {
 selectFaseTemporal.addEventListener("change", () => {
     atualizarIndicadoresTemporais();
     atualizarGraficoTemporal();
+    atualizarTituloTemporal();
 });
 
-// 🔹 Função para atualizar o gráfico
-// Função para atualizar o gráfico (agora com valores normalizados)
+// 🔹 Atualizar gráfico quando o gênero for alterado
+selectSexoTemporal.addEventListener("change", () => {
+  atualizarGraficoTemporal();
+  atualizarTituloTemporal();
+});
+
+// 🔹 Função para atualizar o gráfico (agora com valores normalizados)
 function atualizarGraficoTemporal() {
     const ufSelecionado = selectUFTemporal.value;
     const municipioSelecionado = selectMunicipioTemporal.value;
     const faseVidaSelecionada = selectFaseTemporal.value;
     const indicadorSelecionado = selectIndicadorTemporal.value;
+    const sexoSelecionado = selectSexoTemporal.value;
 
+    // Importante: ao filtrar, se um município foi selecionado, comparar usando o código (d.codigo_municipio)
     let dadosFiltrados = allDataTemporal.filter(d =>
         (ufSelecionado === "" || d.UF === ufSelecionado) &&
-        (municipioSelecionado === "" || d.municipio === municipioSelecionado) &&
-        d.fase_vida === faseVidaSelecionada
+        (municipioSelecionado === "" || String(d.codigo_municipio) === municipioSelecionado) &&
+        d.fase_vida === faseVidaSelecionada &&
+        (sexoSelecionado === "Todos" || d.SEXO === sexoSelecionado)
     );
 
     // 🔹 Agrupar os entrevistados por ano e calcular o total de entrevistados por ano
@@ -162,10 +243,13 @@ function atualizarGraficoTemporal() {
 
     // Agrupar dados por ano e sexo
     let anos = [...new Set(dadosFiltrados.map(d => d.ANO))].sort();
-    let dadosGrafico = { Masc: [], Fem: [], Todos: [] };
+    let dadosGrafico = {};
     let maxPorcentagem = 0;
 
-    anos.forEach(ano => {
+    if (sexoSelecionado === "Todos"){
+      dadosGrafico = {Masc: [], Fem: [], Todos: [] };
+
+      anos.forEach(ano => {
         let masc = dadosFiltrados.filter(d => d.ANO === ano && d.SEXO === "Masc");
         let fem = dadosFiltrados.filter(d => d.ANO === ano && d.SEXO === "Fem");
 
@@ -186,15 +270,30 @@ function atualizarGraficoTemporal() {
             dadosGrafico.Fem.push({ ano, valor: percFem });
             dadosGrafico.Todos.push({ ano, valor: percTodos });
         }
-    });
+      });
 
+    } else {
+      // Se for "Masc" ou "Fem", gerar apenas a série selecionada
+      dadosGrafico[sexoSelecionado] = [];
+
+      anos.forEach(ano => {
+          let dadosPorSexo = dadosFiltrados.filter(d => d.ANO === ano && d.SEXO === sexoSelecionado);
+          let totalEntrevistadosAno = totalEntrevistadosPorAno.get(ano) || 0;
+          if (totalEntrevistadosAno > 0) {
+              let valor = dadosPorSexo.reduce((sum, d) => sum + Number(d[indicadorSelecionado] || 0), 0);
+              let perc = (valor / totalEntrevistadosAno) * 100;
+              maxPorcentagem = Math.max(maxPorcentagem, perc);
+              dadosGrafico[sexoSelecionado].push({ ano, valor: perc });
+          }
+      });
+
+    }
     // 🔹 Adicionar 10% de margem ao topo do gráfico
     maxPorcentagem = Math.ceil(maxPorcentagem * 1.1);
 
     desenharGraficoTemporal(dadosGrafico, anos, maxPorcentagem);
     atualizarQuadroEntrevistados(dadosFiltrados);
 }
-
 
 // 🔹 Função para atualizar os dados do Quadro de Entrevistados
 function atualizarQuadroEntrevistados(dadosFiltrados) {
@@ -228,7 +327,7 @@ function desenharGraficoTemporal(dados, anos, maxY) {
     // Limpa o contêiner
     d3.select("#graficoAnaliseTemporal").selectAll("*").remove();
   
-    const margin = { top: 30, right: 30, bottom: 50, left: 60 },
+    const margin = { top: 30, right: 30, bottom: 50, left: 50 },
           internalWidth  = 700,
           internalHeight = 355;
   
@@ -239,7 +338,7 @@ function desenharGraficoTemporal(dados, anos, maxY) {
       .attr("preserveAspectRatio", "xMidYMid meet")
       .classed("w-full", true)
       .classed("h-auto", true);
-  
+       
     // Grupo principal para aplicar as margens
     const chartArea = svg.append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
@@ -248,7 +347,7 @@ function desenharGraficoTemporal(dados, anos, maxY) {
     const x = d3.scalePoint()
       .domain(anos)
       .range([0, internalWidth])
-      .padding(0.2); // afasta os pontos das bordas
+      .padding(0.2);
   
     const y = d3.scaleLinear()
       .domain([0, maxY])
@@ -265,6 +364,15 @@ function desenharGraficoTemporal(dados, anos, maxY) {
       .call(d3.axisBottom(x));
     chartArea.append("g")
       .call(d3.axisLeft(y).ticks(6).tickFormat(d => `${d}%`));
+    // Após desenhar o eixo y, adicione o label:
+    chartArea.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("x", -internalHeight / 2)
+      .attr("y", -margin.left)
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .style("font-size", "17px")
+      .text("Prevalência");
   
     // Linhas de referência para cada tick, exceto o último, no linesGroup
     const ticks = y.ticks(6);
@@ -287,7 +395,7 @@ function desenharGraficoTemporal(dados, anos, maxY) {
     const cores = { Masc: "#597eec", Fem: "#f76482", Todos: "#57bb7f" };
   
     // Para cada série, desenha linha, círculos e labels
-    ["Masc", "Fem", "Todos"].forEach(sexo => {
+    Object.keys(dados).forEach(sexo => {
       // Linha do gráfico (no linesGroup)
       linesGroup.append("path")
         .datum(dados[sexo])
@@ -337,40 +445,19 @@ function desenharGraficoTemporal(dados, anos, maxY) {
         .attr("class", `label-group-${sexo}`)
         .style("visibility", "hidden");
   
-      // Retângulo de fundo
       labelGroups.append("rect")
+        .attr("x", d => x(d.ano) - 20)
+        .attr("y", d => y(d.valor) - 30)
+        .attr("width", 40)
+        .attr("height", 20)
         .attr("fill", "white")
-        .attr("rx", 3)
-        .attr("ry", 3);
+        .attr("stroke", "gray");
   
-      // Texto do valor
       labelGroups.append("text")
         .attr("x", d => x(d.ano))
-        .attr("y", d => y(d.valor) - 8)
+        .attr("y", d => y(d.valor) - 15)
         .attr("text-anchor", "middle")
-        .attr("font-weight", "bold")
-        .attr("fill", cores[sexo])
-        .text(d => `${d.valor.toFixed(2)}%`);
-  
-      // Ajusta o retângulo para envolver o texto com um padding maior
-      const padding = 12; // aumenta o retângulo
-      labelGroups.each(function(d) {
-        const g = d3.select(this);
-        const textElem = g.select("text").node();
-        const bbox = textElem.getBBox();
-        g.select("rect")
-          .attr("x", bbox.x - padding / 2)
-          .attr("y", bbox.y - padding / 2)
-          .attr("width", bbox.width + padding)
-          .attr("height", bbox.height + padding);
-      });
+        .style("font-size", "12px")
+        .text(d => d.valor.toFixed(1) + "%");
     });
-  }
-  
-  
-  
-  
-  
-  
-  
-  
+}
