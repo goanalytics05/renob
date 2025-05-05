@@ -524,8 +524,8 @@ function atualizarTitulo() {
   recuperarNomeMunicipio().then(municipioAmigavel => {
     // Se nenhum município for selecionado, use um formato sem mencionar o município.
     const novoTitulo = !municipioAmigavel || municipioAmigavel === " "
-      ? `Mapeamento do Estado Nutricional de ${faseLabel[fase]} ${sexoLabel[sexo]} em ${ufLabel[uf]} ${ano}`
-      : `Mapeamento do Estado Nutricional de ${faseLabel[fase]} ${sexoLabel[sexo]} em ${municipioAmigavel} ${ano}`;
+      ? `Mapeamento de Estados Nutricionais em ${faseLabel[fase]} ${sexoLabel[sexo]} - ${ufLabel[uf]} ${ano}`
+      : `Mapeamento de Estados Nutricionais em ${faseLabel[fase]} ${sexoLabel[sexo]} - ${municipioAmigavel} ${ano}`;
     // Atualiza o elemento do título
     document.getElementById("tituloMapeamento").textContent = novoTitulo;
   });

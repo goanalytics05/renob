@@ -4,6 +4,9 @@ const width = 700, height = 500;
 let currentMode = "brasil"; // "brasil" ou "estado"
 let currentUF = null;
 
+const selectFaseReg = document.getElementById("filtro-fasevida");
+const selectNutricional = document.getElementById("filtroNutricional");
+
 // Formatação para valores
 const formatAbs = d3.formatLocale({
   decimal: ",",
@@ -11,6 +14,23 @@ const formatAbs = d3.formatLocale({
   grouping: [3],
   currency: ["", ""]
 }).format(",.0f");
+
+// Transcrição para os filtros
+const nomesIndicadoresAdultoR = {
+   baixo_peso: "Baixo Peso",
+   eutrofico: "Eutrófico",
+   sobrepeso: "Sobrepeso",
+   obesidade_G_1: "Obesidade Grau I",
+   obesidade_G_2: "Obesidade Grau II",
+   obesidade_G_3: "Obesidade Grau III"
+};
+
+const nomesIndicadoresAdolescenteR = {
+   magreza_acentuada: "Magreza Acentuada",
+   magreza: "Magreza",
+   obesidade: "Obesidade",
+   obesidade_grave: "Obesidade Grave"
+};
 
 // Mapeamento de UFs para nomes
 const estados = {
@@ -62,8 +82,83 @@ d3.csv("./db_final.csv").then(function(data) {
   initBrasilMap();
 });
 
+// Quadro de Entrevistados
+function atualizarQuadroRegional() {
+   // 1. Captura valores dos filtros
+   const anoSel         = +d3.select("#filtro-ano").property("value");
+   const sexoSel        = d3.select("#filtro-sexo").property("value");
+   const faseSel        = d3.select("#filtro-fasevida").property("value");
+   const nutricionalSel = d3.select("#filtroNutricional").property("value");
+ 
+   // 2. Filtra a base por ano, fase e (se for estado) UF
+   let arr = csvData.filter(d =>
+     +d.ANO === anoSel &&
+     d.fase_vida === faseSel &&
+     (currentMode !== "estado" || d.UF === currentUF)
+   );
+ 
+   // 3. Filtra por gênero, se necessário
+   if (sexoSel !== "Todos") {
+     arr = arr.filter(d => d.SEXO === sexoSel);
+   }
+ 
+   // 4. Filtra por estado nutricional — já está correto:
+   if (nutricionalSel !== "Total") {
+     arr = arr.filter(d => +d[nutricionalSel] > 0);
+   }
+ 
+   // 5. Soma os valores **da própria coluna nutricional**:
+   let totalFem, totalMasc;
+   if (nutricionalSel === "Total") {
+     // para “Total”, somamos todas as categorias (ou você pode somar d.total)
+     totalFem  = d3.sum(arr.filter(d => d.SEXO === "Fem"),  d => +d.total);
+     totalMasc = d3.sum(arr.filter(d => d.SEXO === "Masc"), d => +d.total);
+   } else {
+     totalFem  = d3.sum(arr.filter(d => d.SEXO === "Fem"),  d => +d[nutricionalSel]);
+     totalMasc = d3.sum(arr.filter(d => d.SEXO === "Masc"), d => +d[nutricionalSel]);
+   }
+   const totalAll = totalFem + totalMasc;
+ 
+   // 6. Atualiza o DOM
+   document.getElementById("valorMulheresRegional").textContent = totalFem.toLocaleString("pt-BR");
+   document.getElementById("valorHomensRegional"  ).textContent = totalMasc.toLocaleString("pt-BR");
+   document.getElementById("valorTodosRegional"  ).textContent = totalAll.toLocaleString("pt-BR");
+}
+ 
+ 
+
 // Tooltip
 const tooltip = d3.select(".tooltip");
+
+// =======================
+// Função para atualizar o título da seção Regional
+// =======================
+function atualizarTituloRegional() {
+   const ano = d3.select("#filtro-ano").property("value");
+   const sexo = d3.select("#filtro-sexo").property("value");
+   const nutricional = d3.select("#filtroNutricional").property("value");
+   const fase = d3.select("#filtro-fasevida").property("value");
+   const lugar = currentMode === "estado" ? estados[currentUF] : "Brasil";
+   // Construir string do título
+   const titulo = `Mapeamento Regional de ${nomeAmigavel[nutricional] || nutricional} em ${faseLabel[fase]} ${sexoLabel[sexo]} - ${lugar} ${ano}`;
+   document.getElementById("tituloRegional").textContent = titulo;
+ }
+
+ // =======================
+ // Função para atualizar Estado Nutricional a partir da fase da vida
+ // =======================
+function atualizarEstadoNutricionalRegional() {
+   const faseVidaReg = selectFaseReg.value;
+   if (!faseVidaReg) return;
+
+   const indicadorReg = faseVidaReg === "adulto" 
+       ? nomesIndicadoresAdultoR 
+       : nomesIndicadoresAdolescenteR;
+
+   selectNutricional.innerHTML = Object.entries(indicadorReg)
+       .map(([valorR, nomeExibicaoR]) => `<option value="${valorR}">${nomeExibicaoR}</option>`)
+       .join("");
+}
 
 // =======================
 // VISÃO DO BRASIL
@@ -79,21 +174,34 @@ function initBrasilMap() {
      anos.forEach(a => dropdownAno.append("option").attr("value", a).text(a));
      const anoInicial = anos[anos.length - 1];
      dropdownAno.property("value", anoInicial);
+     atualizarEstadoNutricionalRegional();
      
      // Registra eventos dos filtros, de acordo com o modo atual
      d3.select("#filtro-ano").on("change", () => {
        if (currentMode === "brasil") updateBrasilMap(geoData);
        else if (currentMode === "estado") updateEstadoMap(currentUF);
+       atualizarTituloRegional();
+       atualizarQuadroRegional();
      });
      d3.select("#filtro-sexo").on("change", () => {
        if (currentMode === "brasil") updateBrasilMap(geoData);
        else if (currentMode === "estado") updateEstadoMap(currentUF);
+       atualizarTituloRegional();
+       atualizarQuadroRegional();
      });
-     d3.select("#filtro-nutricional").on("change", () => {
+     d3.select("#filtroNutricional").on("change", () => {
        if (currentMode === "brasil") updateBrasilMap(geoData);
        else if (currentMode === "estado") updateEstadoMap(currentUF);
+       atualizarTituloRegional();
+       atualizarQuadroRegional();
      });
-     
+     d3.select("#filtro-fasevida").on("change", () => {
+      atualizarEstadoNutricionalRegional();
+      if (currentMode === "brasil") updateBrasilMap(geoData);
+      else if (currentMode === "estado") updateEstadoMap(currentUF);
+      atualizarTituloRegional();
+      atualizarQuadroRegional();
+    });
      // Cria o SVG no container regional
      let svgBrasil = d3.select("#mapaRegional").select("svg");
      if (svgBrasil.empty()) {
@@ -101,7 +209,9 @@ function initBrasilMap() {
          .attr("width", width)
          .attr("height", height);
      }
+     atualizarQuadroRegional();
      updateBrasilMap(geoData);
+     atualizarTituloRegional();
   });
 }
 
@@ -121,10 +231,11 @@ function getHoverColorScale(minVal, maxVal) {
 function updateBrasilMap(geoData) {
   const filtroAno = d3.select("#filtro-ano").property("value");
   const filtroSexo = d3.select("#filtro-sexo").property("value");
-  const filtroNutricional = d3.select("#filtro-nutricional").property("value");
+  const filtroNutricional = d3.select("#filtroNutricional").property("value");
+  const filtroFase = d3.select("#filtro-fasevida").property("value");
   
   const allStateData = csvData.filter(d =>
-     +d.ANO === +filtroAno && d.fase_vida === "adulto"
+     +d.ANO === +filtroAno && d.fase_vida === filtroFase
   );
   
   const valoresMapa = new Map();
@@ -332,6 +443,19 @@ function updateBrasilMap(geoData) {
   legendSvg.append("g")
      .attr("transform", `translate(${legendWidth + 20}, 10)`)
      .call(legendAxis);
+  legendSvg.append("text")
+     .attr("transform", `translate(${legendWidth + 65}, ${10 + legendHeight/2}) rotate(-90)`)
+     .attr("text-anchor", "middle")
+     .attr("font-size", "18px")
+     .text("Prevalência (%)");
+  d3.select("#mapaRegional")
+     .append("div")
+       .attr("class","alerta-mapa")
+       .style("text-align","center")
+       .style("margin-top","8px")
+       .style("font-size","14px")
+       .style("color", "#aa0000")
+       .text("⚠️Clique com o botão esquerdo do mouse no estado para visualizar o seu mapa")
 }
 
 // =======================
@@ -348,12 +472,13 @@ function loadEstadoMap(uf) {
     .text(`${estados[uf]}`)
     .classed("text-center font-bold", true);
   updateEstadoMap(uf);
+  atualizarTituloRegional();
 }
 
 function updateEstadoMap(uf) {
   const selectedYear = d3.select("#filtro-ano").property("value");
   const selectedSexo = d3.select("#filtro-sexo").property("value");
-  const selectedNutricao = d3.select("#filtro-nutricional").property("value");
+  const selectedNutricao = d3.select("#filtroNutricional").property("value");
   
   const geojsonFile = stateGeojsonFiles[uf];
   d3.json(geojsonFile).then(function(geo) {
@@ -362,7 +487,6 @@ function updateEstadoMap(uf) {
      if (selectedSexo !== "Todos") {
         filtered = filtered.filter(d => d.SEXO === selectedSexo);
      }
-     
      let agg;
      if (selectedNutricao === "Total") {
         agg = d3.rollup(filtered,
@@ -379,7 +503,7 @@ function updateEstadoMap(uf) {
            d => d.codigo_municipio
         );
      }
-     
+     atualizarQuadroRegional();
      const values = Array.from(agg.values());
      const minVal = d3.min(values);
      const maxVal = d3.max(values);
@@ -536,6 +660,19 @@ function updateEstadoMap(uf) {
      legendSvg.append("g")
         .attr("transform", `translate(${legendWidth + 10}, 10)`)
         .call(legendAxisEstado);
+     legendSvg.append("text")
+        .attr("transform", `translate(${legendWidth + 65}, ${10 + legendHeight/2}) rotate(-90)`)
+        .attr("text-anchor", "middle")
+        .attr("font-size", "18px")
+        .text("Prevalência (%)");
+     d3.select("#mapaRegional")
+        .append("div")
+          .attr("class","alerta-mapa")
+          .style("text-align","center")
+          .style("margin-top","8px")
+          .style("font-size","14px")
+          .style("color", "#aa0000")
+          .text("⚠️Clique com o botão direito do mouse para retornar à visualização do País")
   });
 }
 

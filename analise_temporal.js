@@ -109,8 +109,8 @@ function atualizarTituloTemporal() {
 
   recuperarNomeMunicipioTemporal().then(municipioAmigavel => {
     const novoTitulo = !municipioAmigavel || municipioAmigavel === " "
-      ? `Análises Temporais de ${estadoLabel[estado]} em ${faseLabel[fase]} ${sexoLabel[sexo]} em ${ufLabel[uf]} ${ano}`.trim()
-      : `Análises Temporais de ${estadoLabel[estado]} em ${faseLabel[fase]} ${sexoLabel[sexo]} em ${municipioAmigavel} ${ano}`.trim();
+      ? `Análises Temporais de ${estadoLabel[estado]} em ${faseLabel[fase]} ${sexoLabel[sexo]} - ${ufLabel[uf]} ${ano}`.trim()
+      : `Análises Temporais de ${estadoLabel[estado]} em ${faseLabel[fase]} ${sexoLabel[sexo]} - ${municipioAmigavel} ${ano}`.trim();
     document.getElementById("tituloTemporal").textContent = novoTitulo;
   });
 }
