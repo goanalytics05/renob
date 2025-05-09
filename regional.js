@@ -7,6 +7,8 @@ let lastGeoDataCountry, lastGeoDataBrasil;
 
 const selectFaseReg = document.getElementById("filtro-fasevida");
 const selectNutricional = document.getElementById("filtroNutricional");
+const selectDivisao = d3.select("#filtro-divisao");
+const containerDivisao = d3.select("#container-divisao");
 
 //gradientes dos filtros
 const gradientes = {
@@ -96,6 +98,37 @@ const stateGeojsonFiles = {
   "MS": "./geojson/br_cities/geojs-50-mun.json"
 };
 
+// Arquivos GeoJSON para municípios
+const stateRGeojsonFiles = {
+  "AC": "./geojson/by_state/health_regions_12.geojson",
+  "AM": "./geojson/by_state/health_regions_13.geojson",
+  "AP": "./geojson/by_state/health_regions_16.geojson",
+  "PA": "./geojson/by_state/health_regions_15.geojson",
+  "RO": "./geojson/by_state/health_regions_11.geojson",
+  "RR": "./geojson/by_state/health_regions_14.geojson",
+  "TO": "./geojson/by_state/health_regions_17.geojson",
+  "AL": "./geojson/by_state/health_regions_27.geojson",
+  "BA": "./geojson/by_state/health_regions_29.geojson",
+  "CE": "./geojson/by_state/health_regions_23.geojson",
+  "MA": "./geojson/by_state/health_regions_21.geojson",
+  "PB": "./geojson/by_state/health_regions_25.geojson",
+  "PE": "./geojson/by_state/health_regions_26.geojson",
+  "PI": "./geojson/by_state/health_regions_22.geojson",
+  "RN": "./geojson/by_state/health_regions_24.geojson",
+  "SE": "./geojson/by_state/health_regions_28.geojson",
+  "ES": "./geojson/by_state/health_regions_32.geojson",
+  "MG": "./geojson/by_state/health_regions_31.geojson",
+  "RJ": "./geojson/by_state/health_regions_33.geojson",
+  "SP": "./geojson/by_state/health_regions_35.geojson",
+  "PR": "./geojson/by_state/health_regions_41.geojson",
+  "RS": "./geojson/by_state/health_regions_43.geojson",
+  "SC": "./geojson/by_state/health_regions_42.geojson",
+  "DF": "./geojson/by_state/health_regions_53.geojson",
+  "GO": "./geojson/by_state/health_regions_52.geojson",
+  "MT": "./geojson/by_state/health_regions_51.geojson",
+  "MS": "./geojson/by_state/health_regions_50.geojson"
+};
+
 // Dados CSV
 let csvData;
 d3.csv("./db_final.csv").then(function(data) {
@@ -144,6 +177,15 @@ d3.csv("./db_final.csv").then(function(data) {
 
   // 2) Finalmente, chama a inicialização da primeira view (país)
   initCountryMap();
+});
+
+let regionData;
+d3.csv("./db_region.csv").then(data => {
+  data.forEach(d => {
+    d.regional_id      = d.regional_id.toString();
+    d.municipio_id_sdv = d.municipio_id_sdv.toString();
+  });
+  regionData = data;
 });
 
 // Quadro de Entrevistados
@@ -229,6 +271,7 @@ function atualizarEstadoNutricionalRegional() {
 // =======================
 function initCountryMap() {
 
+   containerDivisao.style("display", "none");
    const svg = d3.select("#mapaRegional svg");
    svg.selectAll("path.state, path.municipio").remove();
 
@@ -402,6 +445,8 @@ function initCountryMap() {
 // =======================
 function initBrasilMap() {
 
+   containerDivisao.style("display", "none");
+
    // limpa títulos de estados anteriores
   d3.select("#mapaRegional").selectAll("h2, .alerta-mapa").remove();
 
@@ -414,7 +459,7 @@ function initBrasilMap() {
        .style("margin-top","8px")
        .style("font-size","14px")
        .style("color", "#aa0000")
-       .text("⚠️Clique com o botão esquerdo do mouse no estado para visualizar suas cidades");
+       .text("⚠️Clique com o botão esquerdo do mouse no estado para visualizá-lo");
 
   container.append("div")
        .attr("class","alerta-mapa alerta-extra")
@@ -640,8 +685,11 @@ function updateBrasilMap(geoData) {
         d3.select(this).attr("stroke-width", 1);
      })
      .on("click", function(event, d) {
-        loadEstadoMap(d.id);
-     })
+         if (selectDivisao.property("value") === "federativa")
+            loadEstadoMap(d.id);            
+         else
+            initHealthRegionMap(d.id);         
+      })
      .on("contextmenu", function(event) {
       event.preventDefault();
       event.stopPropagation(); 
@@ -695,6 +743,20 @@ function updateBrasilMap(geoData) {
 function loadEstadoMap(uf) {
   currentMode = "estado";
   currentUF = uf;
+
+  containerDivisao.style("display", "block");   // <— mostra o Divisão
+  selectDivisao.property("value", "federativa"); // padrão
+
+  // quando o usuário mudar o filtro “Divisão”, troca o mapa
+  selectDivisao.on("change", function() {
+   const modo = d3.select(this).property("value");
+   if (modo === "saude") {
+      initHealthRegionMap(uf);
+   } else {
+      loadEstadoMap(uf);
+   }
+   });
+
   // Limpa o container e insere um título para a visualização estadual
   d3.select("#mapaRegional").html("");
   d3.select("#legendRegional").html("");
@@ -942,6 +1004,235 @@ function updateEstadoMap(uf) {
   });
 }
 
+// =======================
+// VISÃO REGIÃO SAÚDE (USANDO OS MESMOS CONTAINERS)
+// =======================
+function initHealthRegionMap(uf) {
+  currentMode = "healthRegion";
+  currentUF = uf;
+
+  // limpa container e títulos, igual a loadEstadoMap
+  d3.select("#mapaRegional").html("");
+  d3.select("#legendRegional").html("");
+
+  d3.select("#mapaRegional")
+    .insert("h2", ":first-child")
+    .text(`${estados[uf]} – Regiões de Saúde`)
+    .classed("text-center font-bold", true);
+
+  // mostra o Divisão e seta padrão
+  containerDivisao.style("display", "block");
+  selectDivisao.property("value", "saude");
+
+  // re-binde dos filtros gerais
+  d3.select("#filtro-fasevida").on("change", () => {
+    atualizarEstadoNutricionalRegional();
+    updateHealthRegionMap(uf);
+    atualizarTituloRegional();
+    atualizarQuadroRegional();
+  });
+  ["#filtro-ano", "#filtro-sexo", "#filtroNutricional", "#filtro-divisao"]
+    .forEach(sel => {
+      d3.select(sel).on("change", () => {
+        updateHealthRegionMap(uf);
+        atualizarTituloRegional();
+        atualizarQuadroRegional();
+      });
+    });
+
+  // desenha pela primeira vez
+  updateHealthRegionMap(uf);
+}
+
+// -----------------------
+// atualiza VISÃO REGIÃO DE SAÚDE
+// -----------------------
+
+function updateHealthRegionMap(uf) {
+  const selectedYear  = d3.select("#filtro-ano").property("value");
+  const selectedSexo  = d3.select("#filtro-sexo").property("value");
+  const selectedNutri = d3.select("#filtroNutricional").property("value");
+  const selectedFase  = d3.select("#filtro-fasevida").property("value");
+
+  containerDivisao.style("display", "block");
+  // quando o usuário mudar o filtro “Divisão”, troca o mapa
+  selectDivisao.on("change", function() {
+   const modo = d3.select(this).property("value");
+   if (modo === "saude") {
+      initHealthRegionMap(uf);
+   } else {
+      loadEstadoMap(uf);
+   }
+   });
+
+  // 1) carrega o GeoJSON de regiões de saúde para este UF
+  const geojsonFile = stateRGeojsonFiles[uf];
+  d3.json(geojsonFile).then(geo => {
+    // 2) filtra e agrega dados usando db_region (você deve ter feito o join db_final ↔ db_region em memória)
+    //    Assumindo que você já carregou o CSV db_region.csv em global regionData
+    let stateCSV = csvData.filter(d =>
+      d.UF === uf && +d.ANO === +selectedYear && d.fase_vida === selectedFase
+    );
+    // junta regionData para obter regional_id
+    const merged = stateCSV.map(d => {
+      const reg = regionData.find(r => r.municipio_id_sdv === d.codigo_municipio);
+      return Object.assign({}, d, { regional_id: reg ? reg.regional_id : null });
+    }).filter(d => d.regional_id);
+
+    // 3) rollup por regional_id em vez de codigo_municipio
+    let agg;
+    if (selectedNutri === "Total") {
+      agg = d3.rollup(
+        merged,
+        v => d3.sum(v, d =>
+           (+d.baixo_peso)
+         + (+d.eutrofico)
+         + (+d.sobrepeso)
+         + (+d.obesidade_G_1)
+         + (+d.obesidade_G_2)
+         + (+d.obesidade_G_3)
+        ),
+        d => d.regional_id
+      );
+    } else {
+      agg = d3.rollup(
+        merged,
+        v => {
+          const catSum   = d3.sum(v, d => +d[selectedNutri]);
+          const totalSum = d3.sum(v, d =>
+             (+d.baixo_peso)
+           + (+d.eutrofico)
+           + (+d.sobrepeso)
+           + (+d.obesidade_G_1)
+           + (+d.obesidade_G_2)
+           + (+d.obesidade_G_3)
+          );
+          return totalSum > 0 ? (catSum/totalSum)*100 : 0;
+        },
+        d => d.regional_id
+      );
+    }
+
+    // 4) mesmo código da cor, path e projeção da visão municipal,
+    //    mas usando geo.features (regiões de saúde) e agg.get(feature.properties.regi_id)
+    const values = Array.from(agg.values());
+    const minVal = d3.min(values), maxVal = d3.max(values);
+    const colorScale = getColorScale(selectedSexo, minVal, maxVal);
+    const border   = { "Todos":"#b982a1","Fem":"#4682B4","Masc":"#DB7093" }[selectedSexo] || "#ccc";
+
+    geo.features.forEach(f => {
+      const key = String(f.properties.reg_id);
+      f.properties.value = agg.get(key) || 0;
+    });
+
+    let svg = d3.select("#mapaRegional svg");
+    if (svg.empty()) {
+      svg = d3.select("#mapaRegional")
+              .append("svg")
+                .attr("width", width)
+                .attr("height", height);
+    }
+
+    svg.selectAll("path")
+       .data(geo.features)
+       .join("path")
+         .attr("class", "regiao-saude")
+         .attr("d", d3.geoPath().projection(
+            d3.geoMercator().fitSize([width,height], geo)
+         ))
+         .attr("fill", d => {
+           return d.properties.value === 0
+           ? "#ccc"
+           : colorScale(d.properties.value);
+         })
+         .attr("stroke", border)
+         .attr("stroke-width", 1)
+         .on("mouseover", function(event, d) {
+            const name = d.properties.nome;               // ou o campo com o nome da região
+            const val  = d.properties.value;
+            let html = `<strong>${name}</strong><br>`;
+            if (selectedNutri === "Total") {
+               html += `Entrevistados: ${formatAbs(val)}`;
+            } else {
+               html += `${val.toFixed(1)}%`;
+            }
+            tooltip
+               .style("opacity", 1)
+               .html(html)
+               .style("left", (event.clientX + 5) + "px")
+               .style("top",  (event.clientY - 28) + "px");
+            d3.select(this).attr("stroke-width", 2);
+         })
+         .on("mouseout", function() {
+         tooltip.style("opacity", 0);
+         d3.select(this).attr("stroke-width", 1);
+         })
+         
+    // 5) legenda: igual à visão municipal
+   const legendContainer = d3.select("#legendRegional");
+   legendContainer.selectAll("*").remove();
+   const legendW = 20, legendH = 200;
+   const legendSvg = legendContainer.append("svg")
+   .attr("width", legendW + 80)
+   .attr("height", legendH + 30);
+
+   const grad = legendSvg.append("defs")
+   .append("linearGradient")
+      .attr("id", "healthRegion-gradient")
+      .attr("x1", "0%").attr("y1", "100%")
+      .attr("x2", "0%").attr("y2", "0%");
+
+   grad.append("stop")
+   .attr("offset", "0%")
+   .attr("stop-color", colorScale(minVal));
+   grad.append("stop")
+   .attr("offset", "100%")
+   .attr("stop-color", colorScale(maxVal));
+
+   legendSvg.append("rect")
+   .attr("x", 10).attr("y", 10)
+   .attr("width", legendW).attr("height", legendH)
+   .style("fill", "url(#healthRegion-gradient)");
+
+   const legendScale = d3.scaleLinear()
+   .domain([minVal, maxVal])
+   .range([legendH, 0]);
+
+   const legendAxis = d3.axisRight(legendScale)
+   .ticks(4)
+   .tickFormat(d => selectedNutri === "Total"
+      ? formatAbs(d)
+      : `${d.toFixed(0)}%`);
+
+   legendSvg.append("g")
+   .attr("transform", `translate(${10 + legendW}, 10)`)
+   .call(legendAxis);
+
+   legendSvg.append("text")
+        .attr("transform", `translate(${legendW + 65}, ${10 + legendH/2}) rotate(-90)`)
+        .attr("text-anchor", "middle")
+        .attr("font-size", "18px")
+        .text("Prevalência (%)");
+
+      // Alerta
+   if(d3.select("#mapaRegional").selectAll(".alerta-mapa").empty()){
+      d3.select("#mapaRegional")
+         .append("div")
+            .attr("class","alerta-mapa")
+            .style("text-align","center")
+            .style("margin-top","8px")
+            .style("font-size","14px")
+            .style("color", "#aa0000")
+            .text("⚠️Clique com o botão direito do mouse para retornar à visualização estadual");
+      }
+   });
+}
+
+
+
+// =======================
+
+
 // Clique direito global do mapa
 d3.select("#mapaRegional").on("contextmenu", function(event) {
    event.preventDefault();
@@ -954,6 +1245,10 @@ d3.select("#mapaRegional").on("contextmenu", function(event) {
      initCountryMap();
    }
    else if (currentMode === "estado") {
+     // estava vendo municípios, volta à visão de estados
+     initBrasilMap();
+   }
+   else if (currentMode === "healthRegion") {
      // estava vendo municípios, volta à visão de estados
      initBrasilMap();
    }
