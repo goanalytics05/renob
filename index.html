@@ -313,7 +313,7 @@
     <!-- COLUNA ESQUERDA: FILTROS + QUADRO DE ENTREVISTADOS -->
     <div class="w-1/4 flex flex-col gap-4">
       <!-- FILTROS -->
-      <div id="filtrosMapeamento" class="bg-white p-4 rounded-md shadow-md">
+      <div id="filtrosMapeamento" class="bg-white p-4 rounded-md shadow-md h-[25rem]">
         <h2 class="text-lg font-bold mb-2">Filtros</h2>
 
         <label for="selectUF" class="block font-semibold mt-2">Unidade Federativa</label>
@@ -487,14 +487,19 @@
       <!-- COLUNA ESQUERDA: FILTROS + QUADRO DE ENTREVISTADOS -->
       <div class="w-1/4 flex flex-col gap-4">
         <!-- FILTROS -->
-        <div id="filtrosAnalise" class="bg-white p-5 rounded-md shadow-md">
+        <div id="filtrosAnalise" class="bg-white p-5 rounded-md shadow-md h-[29rem]">
           <h2 class="text-lg font-bold mb-2">Filtros</h2>
-          <label for="selectUFTemporal" class="block font-semibold mt-2">UF</label>
+          <label for="selectUFTemporal" class="block font-semibold mt-2">Unidade Federativa</label>
           <select id="selectUFTemporal" class="border border-gray-300 rounded p-1 w-full"></select>
-  
-          <label for="selectMunicipioTemporal" class="block font-semibold mt-2">Município</label>
-          <select id="selectMunicipioTemporal" class="border border-gray-300 rounded p-1 w-full"></select>
-
+          <div id="container-divisao-Temporal" style="display: none;">
+            <label for="filtro-divisao" class="block font-semibold mt-2">Divisão</label>
+            <select id="filtro-divisao-Temporal" class="border border-gray-300 rounded p-1 w-full">
+              <option value="federativa">Divisão Federativa</option>
+              <option value="saude">Divisão de Saúde</option>
+            </select>
+              <label for="selectMunicipioTemporal" class="block font-semibold mt-2">Município</label>
+              <select id="selectMunicipioTemporal" class="border border-gray-300 rounded p-1 w-full"></select>
+          </div>
           <label for="selectSexoTemporal" class="block font-semibold mt-2">Gênero</label>
           <select id="selectSexoTemporal" class="border border-gray-300 rounded p-1 w-full">
           <option value="Todos">Todos</option>

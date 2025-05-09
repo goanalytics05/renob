@@ -8,9 +8,82 @@ let municipiosPorUF = {}; // Agora usaremos um Map para cada UF
 // Seletores HTML
 const selectUFTemporal = document.getElementById("selectUFTemporal");
 const selectMunicipioTemporal = document.getElementById("selectMunicipioTemporal");
+const containerDivisaoTemporal = document.getElementById("container-divisao-Temporal");
 const selectSexoTemporal = document.getElementById("selectSexoTemporal");
 const selectFaseTemporal = document.getElementById("selectFaseTemporal");
 const selectIndicadorTemporal = document.getElementById("selectIndicador");
+const selectDivisaoTemporal   = document.getElementById("filtro-divisao-Temporal");
+const labelMunicipioTemporal  = document.querySelector('label[for="selectMunicipioTemporal"]');
+let regionDataTemporal = [];
+
+// carregue DB_REGION em paralelo
+d3.csv("db_region.csv").then(raw => {
+  // mapear as colunas do CSV para chaves que nosso código usa
+  regionDataTemporal = raw.map(d => ({
+    municipio_id_sdv: d.municipio_id_sdv,
+    regional_id:       d.regional_id,
+    uf:                d.estado_abrev,           // garante minúscula
+    nome_regiao:       d.regional_nome || d.nome // confere ambos
+  }));
+
+  // Monta lookup: regional_id → [municipio_id_sdv]
+  regionMunicipiosMap = {};
+  regionDataTemporal.forEach(r => {
+    if (!regionMunicipiosMap[r.regional_id]) {
+      regionMunicipiosMap[r.regional_id] = [];
+    }
+    regionMunicipiosMap[r.regional_id].push(r.municipio_id_sdv);
+  });
+
+  updateDivisaoTemporal();
+});
+
+// função para atualizar os filtros a partir do filtro divisão
+function updateDivisaoTemporal() {
+  const uf   = selectUFTemporal.value;
+  const modo = selectDivisaoTemporal.value;
+
+  // zera sempre
+  selectMunicipioTemporal.innerHTML = "<option value=''>Todos</option>";
+
+  if (modo === "federativa") {
+    // 1) título
+    labelMunicipioTemporal.textContent = "Município";
+    // 2) popula municípios existentes (usa sua função)
+    atualizarMunicipiosTemporais(uf);
+
+  } else {
+    // 1) título
+    labelMunicipioTemporal.textContent = "Região de Saúde";
+    // 2) filtra regionDataTemporal por UF e elimina duplicados
+    if (uf) {
+      const regs = regionDataTemporal
+        .filter(r => r.uf === uf)
+        .reduce((acc, cur) => {
+          if (!acc.some(x => x.regional_id === cur.regional_id)) acc.push(cur);
+          return acc;
+        }, [])
+        .sort((a,b) => a.nome_regiao.localeCompare(b.nome_regiao));
+
+      regs.forEach(r => {
+        const opt = document.createElement("option");
+        opt.value = r.regional_id;
+        opt.text  = r.nome_regiao;
+        selectMunicipioTemporal.appendChild(opt);
+      });
+    }
+  }
+}
+
+// função para ocultar/mostrar filtros
+function toggleContainerDivisaoTemporal() {
+  // se houver UF selecionada (valor não vazio), mostramos o container
+  if (selectUFTemporal.value) {
+    containerDivisaoTemporal.style.display = "block";
+  } else {
+    containerDivisaoTemporal.style.display = "none";
+  }
+}
 
 // Transcrição para os filtros
 const nomesIndicadoresAdulto = {
@@ -57,6 +130,9 @@ d3.csv(csvUrlTemporal).then(data => {
     // Preencher os selects
     popularSelectsTemporais(data);
 
+    toggleContainerDivisaoTemporal();
+    updateDivisaoTemporal();
+
     atualizarTituloTemporal();
 
     // Gerar gráfico inicial com valores padrão
@@ -86,8 +162,15 @@ function popularSelectsTemporais(data) {
 // Função para recuperar o nome amigável do município selecionado no temporal
 function recuperarNomeMunicipioTemporal() {
   const municipioSelected = selectMunicipioTemporal.value;
+  
+  // se estivermos no modo “saude”, devolve o nome da região:
+  if (selectDivisaoTemporal.value === "saude") {
+    const reg = regionDataTemporal.find(r => r.regional_id === sel);
+    return Promise.resolve(reg ? reg.nome_regiao : null);
+    }
+  
   // Procura na base temporal a linha com o código do município
-  const registro = allDataTemporal.find(d => String(d.codigo_municipio) === municipioSelected);
+    const registro = allDataTemporal.find(d => String(d.codigo_municipio) === municipioSelected);
   if (!registro || !registro.codigo_municipio) {
     return Promise.resolve(null);
   }
@@ -167,10 +250,19 @@ function atualizarMunicipiosTemporais(ufSelecionada) {
 
 // 🔹 Atualizar municípios ao trocar UF
 selectUFTemporal.addEventListener("change", () => {
-    atualizarMunicipiosTemporais(selectUFTemporal.value);
+    toggleContainerDivisaoTemporal();
+    updateDivisaoTemporal();
     selectMunicipioTemporal.value = "";
     atualizarGraficoTemporal();
     atualizarTituloTemporal();
+});
+
+// quando o usuário troca Divisão:
+selectDivisaoTemporal.addEventListener("change", () => {
+  updateDivisaoTemporal();       // mesmo ajuste
+  selectMunicipioTemporal.value = "";
+  atualizarGraficoTemporal();
+  atualizarTituloTemporal();
 });
 
 // 🔹 Atualizar gráfico ao mudar o MUNICÍPIO
@@ -221,12 +313,26 @@ function atualizarGraficoTemporal() {
     const sexoSelecionado = selectSexoTemporal.value;
 
     // Importante: ao filtrar, se um município foi selecionado, comparar usando o código (d.codigo_municipio)
-    let dadosFiltrados = allDataTemporal.filter(d =>
-        (ufSelecionado === "" || d.UF === ufSelecionado) &&
-        (municipioSelecionado === "" || String(d.codigo_municipio) === municipioSelecionado) &&
-        d.fase_vida === faseVidaSelecionada &&
-        (sexoSelecionado === "Todos" || d.SEXO === sexoSelecionado)
-    );
+    let modo = selectDivisaoTemporal.value;
+
+    let dadosFiltrados = allDataTemporal.filter(d => {
+      // 1) UF e demais filtros originais
+      if (ufSelecionado && d.UF !== ufSelecionado) return false;
+      if (d.fase_vida !== faseVidaSelecionada)       return false;
+      if (sexoSelecionado !== "Todos" && d.SEXO !== sexoSelecionado) return false;
+
+      // 2) Filtragem por município OU por região
+      if (municipioSelecionado) {
+        if (modo === "federativa") {
+          if (String(d.codigo_municipio) !== municipioSelecionado) return false;
+        } else {
+          const membros = regionMunicipiosMap[municipioSelecionado] || [];
+          if (!membros.includes(String(d.codigo_municipio)))     return false;
+        }
+      }
+
+      return true;
+    });
 
     // 🔹 Agrupar os entrevistados por ano e calcular o total de entrevistados por ano
     const totalEntrevistadosPorAno = d3.rollup(
