@@ -90,31 +90,41 @@
   <section id="introducao" class="min-h-screen flex flex-col items-center justify-center pb-32">
     <div class="max-w-6xl w-full px-4 mx-auto">
       <h1 class="text-2xl font-bold mb-4 place-self-center">Introdução</h1>
-      <p class="indent-8 text-justify text-black-600">
-        Bem-vindo ao nosso site dedicado ao mapeamento do estado nutricional no Brasil. Utilizando dados do Sistema de Vigilância Alimentar e Nutricional (SISVAN) desde 2008 até 2023, oferecemos uma visão abrangente sobre a saúde nutricional da população brasileira. Nosso objetivo é fornecer informações detalhadas sobre as diferentes categorias de estado nutricional.
+      <p class="text-justify text-black-600">
+        Seja bem-vindo ao nosso site dedicado ao monitoramento do <b>estado nutricional da população brasileira</b>. 
+        Com base em dados oficiais do <b>Sistema de Vigilância Alimentar e Nutricional (SISVAN)</b>, apresentamos uma alternativa de visualização detalhada sobre a <b>situação nutricional da população brasileira</b>. 
+        Nosso objetivo é fornecer informações <b>confiáveis e territorializadas</b>, apoiando <b>gestores públicos, profissionais da saúde, pesquisadores e formuladores de políticas</b> no planejamento de <b>ações estratégicas e intervenções efetivas</b> no campo da saúde nutricional.
       </p>
       <br>
-      <h2 class="text-xl font-bold mb-4 self-start">Cobertura</h2>
-      <p class="indent-8 text-justify text-black-600">
-        Nosso mapeamento abrange todos os municípios, estados e regiões de saúde do Brasil, permitindo uma análise detalhada e regionalizada. Além disso, os dados são segmentados por gênero (feminino, masculino), por fases da vida (incluindo crianças, adolescentes, adultos e idosos) e pelo período de 2008 a 2023. Essa segmentação nos permite entender melhor as especificidades e necessidades nutricionais de cada grupo populacional, além de permitir comparações entre diferentes regiões e períodos.
+      <h2 class="text-xl font-bold mb-4 self-start">Abrangência dos Dados</h2>
+      <p class="text-justify text-black-600">
+        Nosso sistema permite explorar indicadores por:
       </p>
-      <p class="indent-8 text-justify text-black-600">
-      Por exemplo, é possível comparar a prevalência de obesidade entre adultos do sexo feminino em Minas Gerais e em São Paulo; ou analisar a evolução do estado nutricional de crianças em Minas Gerais ao longo dos anos. Essas comparações ajudam a identificar tendências e áreas que necessitam de maior atenção e intervenção.
+      <ul class="indent-8 list-disc list-inside mt-2 mb-2">
+      <li><b>Unidades geográficas</b>: Municípios, Unidades Federativas e Regiões de Saúde;</li>
+      <li><b>Gênero</b>: Feminino e Masculino;</li>
+      <li><b>Fase da vida</b>: Adultos (20-59 anos);</li>
+      <li><b>Período</b>: Análises de 2008 a 2024.</li>
+      </ul>
+      <p class="text-justify text-black-600">
+        Essa estrutura facilita análises comparativas e permite <b>identificar tendências, vulnerabilidades regionais e perfis nutricionais específicos</b>, fundamentais para a formulação de <b>políticas de saúde pública baseadas em evidências</b>. Exemplos de análise disponíveis:
       </p>
+      <ul class="indent-8 list-disc list-inside mt-2">
+      <li>Comparação da prevalência de <b>obesidade entre mulheres adultas</b> em diferentes estados (ex: Minas Gerais vs. São Paulo);</li>
+      <li>Avaliação da <b>evolução da desnutrição infantil</b> em uma mesma região ao longo dos anos;</li>
+      <li>Identificação de áreas com maior prevalência de <b>sobrepeso entre adolescentes</b>;</li>
+      </ul>
       <br>
       <h2 class="text-xl font-bold mb-4 self-start">Classificação do Estado Nutricional</h2>
-      <p class="indent-8 text-justify text-black-600">
-        Os pontos de corte do Índice de Massa Corporal (IMC) utilizados para a classificação do estado nutricional variam de acordo com as fases da vida.
+      <p class="text-justify text-black-600">
+        Utilizamos critérios padronizados com base no <b>Índice de Massa Corporal (IMC)</b>, ajustados conforme a <b>fase da vida</b>. Abaixo, apresentamos os pontos de corte adotados e a fórmula do IMC:
       </p>
       <br>
-      <p class="indent-16 text-justify text-black-600">
-        Para o cálculo do IMC, adota-se a seguinte fórmula:
-      </p>
       <div class="grid grid-cols-2 gap-4">
         <div class="col-span-2 text-center font-bold">
           <math display="block">
             <mrow>
-            <mi>Índice de Massa Corporal (IMC)</mi>
+            <mi>IMC</mi>
             <mo>=</mo>
             <mfrac>
               <mrow>
@@ -227,28 +237,22 @@
               <tr>
                 <td class="border-r border-l border-gray-600"> 18,5 &le; 24,9</td>
                 <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Eutrofia</td>
-                <td class="pl-4 pr-4 text-left border-r border-l border-t  border-gray-600">Excesso de Peso</td>
               </tr>
               <tr>
                 <td class="border-r border-l border-gray-600"> 25,0 &le; 29,9</td>
                 <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Sobrepeso</td>
-                <td class="pl-4 pr-4 text-left border-r border-l border-b  border-gray-600"></td>
               </tr>
               <tr>
                 <td class="border-r border-l border-gray-600"> 30,0 &le; 34,9</td>
-                <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Obesidade grau I</td>
-                <td class="pl-4 pr-4 text-left border-r border-l border-t  border-gray-600"></td>
-                
+                <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Obesidade grau I</td>                
               </tr>
               <tr>
                 <td class="border-r border-l border-gray-600"> 35,0 &le; 39,9</td>
                 <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Obesidade grau II</td>
-                <td class="pl-4 pr-4 text-left border-r border-l border-gray-600">Obesidade</td>
               </tr>
               <tr>
                 <td class="border-r border-l border-b border-gray-600"> 40,0 &gt;</td>
                 <td class="pl-4 pr-4 text-left border-r border-l border-b  border-gray-600">Obesidade grau III</td>
-                <td class="pl-4 pr-4 text-left border-r border-l border-b  border-gray-600"></td>
               </tr>
             </table>
           </div>
@@ -273,11 +277,26 @@
               </tr>
             </table>
         <p class="indent-16 text-justify text-black-600">
-          
+        
         </p>
           </div>
       </div>
+      <br>
+      <h2 class="text-xl font-bold mb-4 self-start">Por que isso Importa?</h2>
+      <p class="text-justify text-black-600">
+        Os dados apresentados aqui são uma ferramenta estratégica para:
+      </p>
+      <ul class="indent-8 list-disc list-inside mt-2 mb-2">
+      <li><b>Monitoramento contínuo</b> da situação nutricional no território nacional;</li>
+      <li><b>Avaliação de impacto</b> de políticas públicas;</li>
+      <li><b>Planejamento de ações locais</b>, como campanhas de prevenção à obesidade.</li>
+      </ul>
+      <p class="text-justify text-black-600">
+        <b>Transforme dados em ação</b>. Use nosso mapeamento como <b>base técnica para decisões mais eficazes em saúde pública</b>.
+      </p>
+
     </div>
+    
   </section>
   <section id="missao" 
   class="min-h-screen bg-gray-200 flex flex-col items-center justify-center">
